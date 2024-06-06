@@ -46,9 +46,27 @@ public static class AstarPathfinding
 
             openSet.Remove(currentNode);
             closedSet.Add(currentNode);
-
+    
             if (currentNode == endPosition)
             {
+                bool loopFlag = true;
+                do
+                {
+                    loopFlag = false;
+                    for (int i = 1; i < closedSet.Count - 1; i++)
+                    {
+                     List<GameObject> adjacentTiles = HexGrid.GetAdjacentTiles(closedSet[i].hexPosition);
+                     if (adjacentTiles.Contains(closedSet[i].gameObject) && closedSet[i].hCost > closedSet[i + 1].hCost)
+                     {
+                         closedSet[i].DisableHighLight();
+                         closedSet.Remove(closedSet[i]);
+                         Debug.Log($"Path List {closedSet[i]} removed");
+                         
+                            loopFlag = true;
+                     }
+                     
+                    }
+                } while (loopFlag);
                 Debug.Log(closedSet.Count);
                 return closedSet;
             }
