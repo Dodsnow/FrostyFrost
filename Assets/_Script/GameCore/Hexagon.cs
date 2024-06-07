@@ -11,6 +11,7 @@ public class Hexagon : MonoBehaviour
     public float hCost;
     public GameObject _tileObject;
     public TerrainType _terrainType;
+    public bool isOccupied = false;
 
     
 
@@ -21,11 +22,13 @@ public class Hexagon : MonoBehaviour
 
     public void EnableHighLight()
     {
+        
         _highLight.ToggleGlow(true);
     }
 
     public void DisableHighLight()
     {
+        
         _highLight.ToggleGlow(false);
     }
 

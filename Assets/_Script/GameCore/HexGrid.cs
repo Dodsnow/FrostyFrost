@@ -7,17 +7,18 @@ using Random = System.Random;
 
 public class HexGrid : MonoBehaviour
 {
-    private Dictionary<Vector3Int, GameObject> HexagonTilesetMap = new Dictionary<Vector3Int, GameObject>();
+    public Dictionary<Vector3Int, GameObject> HexagonTilesetMap = new Dictionary<Vector3Int, GameObject>();
     private List<GameObject> currentSelectedHexes = new List<GameObject>();
     public GameObject hexPrefab;
     private Vector3 hexStartPosition;
     public GameObject obstaclePrefab;
 
+    
 
-    private void Start()
+    public void HexMapInit()
     {
-        AstarPathfinding.HexGrid = this;
         CreateGrid(new Vector2Int(10, 10));
+        AstarPathfinding.HexGrid = this;
     }
 
     void CreateGrid(Vector2Int gridSize)

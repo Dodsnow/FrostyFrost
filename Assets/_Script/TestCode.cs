@@ -15,6 +15,7 @@ public class TestCode : MonoBehaviour
 
     private void FixedUpdate()
     {
+        
         if (Input.GetKeyDown(KeyCode.Space))
         {
             Grid grid = plainGrid.GetComponent<Grid>(); 

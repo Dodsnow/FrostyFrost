@@ -1,10 +1,10 @@
 
     public class CardAction 
     {
-        ActionType ActionType { get; set; }
-        string Discription { get; set; }
+        public CardActionType ActionType { get; set; }
+        public string Discription { get; set; }
         
-        public CardAction(ActionType actionType, string discription)
+        public CardAction(CardActionType actionType, string discription)
         {
             ActionType = actionType;
             Discription = discription;
