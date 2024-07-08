@@ -7,6 +7,7 @@
         public int initiative { get; set; }
         public CardAction TopCardAction { get; set; }
         public CardAction BottomCardAction { get; set; }
+        public GlowHighLight _highLight { get; set; }
         public GameObject cardPrefab { get; set; }
 
 
@@ -14,8 +15,10 @@
         {
             cardName = "Third Berserker Card";
             initiative = 32;
-            TopCardAction = new CardAction(CardActionType.Discard, "Attack 3,");
-            BottomCardAction = new CardAction(CardActionType.Discard, "Move 3");
+            TopCardAction = new CardAction(CardDiscardActionType.Discard,"Attack 3", this);
+            TopCardAction.AddActionSequence(CharacterActionType.Attack,1,3,"AttackChop");
+            BottomCardAction = new CardAction(CardDiscardActionType.Discard,"Move 3", this);
+            BottomCardAction.AddActionSequence(CharacterActionType.Move,3,0,"");
 
         }
     }

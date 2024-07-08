@@ -1,6 +1,8 @@
 using System.Collections.Generic;
-using Unity.VisualScripting;
+using _Script.PlayableCharacters;
 using UnityEngine;
+using UnityEngine.UI;
+
 
 public class SpawnManager : MonoBehaviour
 {
@@ -8,7 +10,8 @@ public class SpawnManager : MonoBehaviour
     public AiCharacterDB aiCharacter;
     public List<PlayerCharacter> playerCharacters = new List<PlayerCharacter>();
     public List<AiCharacter> aiCharacters = new List<AiCharacter>();
-
+    public GameObject HpSliderPrefab;
+    
 
 
     public void SpawnPlayerCharacter(int playerCharacterID, Hexagon hex)
@@ -17,11 +20,20 @@ public class SpawnManager : MonoBehaviour
         GameObject character = Instantiate(playerCharacterTemplate.characterPrefab, hex.transform.position + new Vector3(0, 1, 0),
             Quaternion.identity);
         PlayerCharacter player = character.GetComponent<PlayerCharacter>();
+        player.currentHexPosition = hex;
+        player.playableEntity = character;
+        player.classType = ClassType.Berserker;
         player.SelectedCards = new List<CharacterCard>();
         player.entityControllerType = EntityControllerType.Player;
         player.CharacterName = playerCharacterTemplate.characterName;
         player.MaxHealth = playerCharacterTemplate.maxHealth;
         player.CurrentHealth = player.MaxHealth;
+        player.HpSlider = Instantiate(HpSliderPrefab, hex.transform.position + new Vector3(0, 2, 0), Quaternion.identity);
+        player.slider = player.HpSlider.GetComponentInChildren<Canvas>().GetComponentInChildren<Slider>();
+        player.slider.maxValue = player.MaxHealth;
+        player.HpSlider.GetComponentInChildren<Canvas>().GetComponentInChildren<Slider>().value = player.CurrentHealth;
+        player.HpSlider.GetComponentInChildren<Canvas>().renderMode = RenderMode.WorldSpace;
+        player.HpSlider.GetComponentInChildren<Canvas>().worldCamera = Camera.main;
         player.handSize = playerCharacterTemplate.handSize;
         playerCharacters.Add(player);
         hex.isOccupied = true;
@@ -33,14 +45,21 @@ public class SpawnManager : MonoBehaviour
         GameObject character = Instantiate(aiCharacterTemplate.characterPrefab, hex.transform.position + new Vector3(0, 1, 0),
             Quaternion.identity);
         AiCharacter ai = character.GetComponent<AiCharacter>();
+        ai.classType = ClassType.AISkeleton;
+        ai.playableEntity = character;
         ai.SelectedCards = new List<CharacterCard>();
+        ai.currentHexPosition = hex;
         ai.CharacterName = aiCharacterTemplate.characterName;
         ai.entityControllerType = EntityControllerType.AI;
-
         ai.MaxHealth = aiCharacterTemplate.maxHealth;
         ai.CurrentHealth = ai.MaxHealth;
-        ai.monsterType = aiCharacterTemplate.monsterType;
-        ai.characterCards = AiCardManager.aiCardsDictionary[ai.monsterType];
+        ai.HpSlider = Instantiate(HpSliderPrefab, hex.transform.position + new Vector3(0, 2, 0), Quaternion.identity);
+        ai.slider = ai.HpSlider.GetComponentInChildren<Canvas>().GetComponentInChildren<Slider>();
+        ai.slider.maxValue = ai.MaxHealth;
+        ai.HpSlider.GetComponentInChildren<Canvas>().GetComponentInChildren<Slider>().value = ai.CurrentHealth;
+        ai.HpSlider.GetComponentInChildren<Canvas>().renderMode = RenderMode.WorldSpace;
+        ai.HpSlider.GetComponentInChildren<Canvas>().worldCamera = Camera.main;
+        ai.characterCards = AiCardManager.aiCardsDictionary[ai.classType];
         aiCharacters.Add(ai);
         hex.isOccupied = true;
 

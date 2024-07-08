@@ -8,5 +8,5 @@ public interface CharacterCard
 
     CardAction BottomCardAction { get; set; }
     
-    
+    GlowHighLight _highLight { get; set; }
 }

@@ -113,4 +113,18 @@ public class HexGrid : MonoBehaviour
             new Vector3Int(0, -1, 1),
         };
     }
+
+    public List<Hexagon> GetTileInRadius(Hexagon startHex, int radius)
+    {
+        List<Hexagon> hexes = new List<Hexagon>();
+        foreach (GameObject hex in HexagonTilesetMap.Values)
+        {
+            if (AstarPathfinding.GetDistance(startHex.hexPosition, hex.GetComponent<Hexagon>().hexPosition) <= radius)
+            {
+                hexes.Add(hex.GetComponent<Hexagon>());
+            }
+        }
+        
+        return hexes;
+    }
 }

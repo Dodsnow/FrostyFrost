@@ -3,12 +3,16 @@
     {
         BattleMapSetup,
         PreSelection,
-        CardSelection,
+        AICardSelection,
+        RoundInitiative,
         RoundStart,
         RoundEnd,
         CharacterTurnStart,
         CharacterTurn,
         CharacterTurnEnd,
+        AiTurnStart,
+        AiTurn,
+        AiTurnEnd,
         BattleLost,
         BattleWon,
         

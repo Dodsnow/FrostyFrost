@@ -7,6 +7,7 @@
         public int initiative { get; set; }
         public CardAction TopCardAction { get; set; }
         public CardAction BottomCardAction { get; set; }
+        public GlowHighLight _highLight { get; set; }
         public GameObject cardPrefab { get; set; }
 
 
@@ -14,8 +15,10 @@
         {
             cardName = "Sixth Berserker Card";
             initiative = 44;
-            TopCardAction = new CardAction(CardActionType.Discard, "Attack 2");
-            BottomCardAction = new CardAction(CardActionType.Discard, "Move 2");
+            TopCardAction = new CardAction(CardDiscardActionType.Discard,"Attack 2", this);
+            TopCardAction.AddActionSequence(CharacterActionType.Attack,1,2,"AttackStab");
+            BottomCardAction = new CardAction(CardDiscardActionType.Discard,"Move 2", this);
+            BottomCardAction.AddActionSequence(CharacterActionType.Move,2,0,"");
 
         }
     }

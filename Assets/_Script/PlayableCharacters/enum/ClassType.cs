@@ -4,4 +4,5 @@
         Berserker,
         Rogue,
         Mage,
+        AISkeleton,
     }

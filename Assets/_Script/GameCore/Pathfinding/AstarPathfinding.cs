@@ -67,7 +67,7 @@ public static class AstarPathfinding
                      
                     }
                 } while (loopFlag);
-                Debug.Log(closedSet.Count);
+                
                 return closedSet;
             }
             

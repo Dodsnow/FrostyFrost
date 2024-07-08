@@ -7,6 +7,7 @@
         public int initiative { get; set; }
         public CardAction TopCardAction { get; set; }
         public CardAction BottomCardAction { get; set; }
+        public GlowHighLight _highLight { get; set; }
         public GameObject cardPrefab { get; set; }
 
 
@@ -14,7 +15,10 @@
         {
             cardName = "Second Skeleton Card";
             initiative = 14;
-            TopCardAction = new CardAction(CardActionType.Discard, "Attack 1, Attack 1");
-            BottomCardAction = new CardAction(CardActionType.Shuffle, "Move 4");
+            TopCardAction = new CardAction(CardDiscardActionType.Discard, "Move 4, Attack 1, Attack 1", this);
+            TopCardAction.AddActionSequence(CharacterActionType.Move,4,0,"");
+            TopCardAction.AddActionSequence(CharacterActionType.Attack,1,1,"AttackChop");
+            TopCardAction.AddActionSequence(CharacterActionType.Attack,1,1,"AttackSlice");
+           
         } 
     }
