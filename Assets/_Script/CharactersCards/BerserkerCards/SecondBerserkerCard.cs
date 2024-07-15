@@ -1,4 +1,6 @@
 
+    using System.Collections.Generic;
+    using _Script.ConditionalEffects.Enum;
     using UnityEngine;
 
     public class SecondBerserkerCard : CharacterCard
@@ -16,11 +18,11 @@
             cardName = "Second Berserker Card";
             initiative = 12;
             TopCardAction = new CardAction(CardDiscardActionType.Discard, "Attack 1, Attack 2", this);
-            TopCardAction.AddActionSequence(CharacterActionType.Attack,1,1,"AttackChop");
-            TopCardAction.AddActionSequence(CharacterActionType.Attack,1,2, "AttackSlice");
-            BottomCardAction = new CardAction(CardDiscardActionType.Discard,"Move 1, Heal 1", this);
-            BottomCardAction.AddActionSequence(CharacterActionType.Move,1,0,"");
-            BottomCardAction.AddActionSequence(CharacterActionType.Heal,1,1,"");
+            TopCardAction.AddActionSequence(CharacterActionType.Attack,1,1,"AttackChop",null);
+            TopCardAction.AddActionSequence(CharacterActionType.Attack,1,2, "AttackSlice", new List<ApplicableConditions>(){ApplicableConditions.Bleed, ApplicableConditions.Stun});
+            BottomCardAction = new CardAction(CardDiscardActionType.Discard,"Move 10, Heal 1", this);
+            BottomCardAction.AddActionSequence(CharacterActionType.Move,10,0,"",null);
+            BottomCardAction.AddActionSequence(CharacterActionType.Heal,1,1,"",null);
 
         }
     }

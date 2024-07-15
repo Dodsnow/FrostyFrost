@@ -1,3 +1,5 @@
+  using System.Collections.Generic;
+  using _Script.ConditionalEffects.Enum;
   using UnityEngine;
   using UnityEngine.UI;
 
@@ -16,8 +18,8 @@
             cardName = "Nothing Special";
             initiative = 20;
             TopCardAction = new CardAction(CardDiscardActionType.Shuffle, "Move 3, Attack 3", this);
-            TopCardAction.AddActionSequence(CharacterActionType.Move,3,0,"");
-            TopCardAction.AddActionSequence(CharacterActionType.Attack,1,3,"AttackSlice");
+            TopCardAction.AddActionSequence(CharacterActionType.Move,3,0,"",null);
+            TopCardAction.AddActionSequence(CharacterActionType.Attack,1,3,"AttackSlice", new List<ApplicableConditions>(){ApplicableConditions.Bleed});
 
         }
     }

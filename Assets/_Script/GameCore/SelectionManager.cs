@@ -96,7 +96,7 @@ public class SelectionManager : MonoBehaviour
                             lastSelectedCardAction.cardActionSequencesList[battleManager.currentActionSequenceIndex]
                                 .ActionValue,
                             lastSelectedCardAction.cardActionSequencesList[battleManager.currentActionSequenceIndex]
-                                .AnimProp);
+                                .AnimProp, lastSelectedCardAction.cardActionSequencesList[battleManager.currentActionSequenceIndex].Conditions);
                     }
                     else
                     {

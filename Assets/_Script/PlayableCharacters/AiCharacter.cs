@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using _Script.ConditionalEffects;
 using _Script.PlayableCharacters;
 using UnityEngine;
 using UnityEngine.UI;
@@ -13,6 +14,11 @@ public class AiCharacter : MonoBehaviour, ICharacter
     public Slider slider { get; set; }
     public Hexagon currentHexPosition { get; set; }
     public GameObject HpSlider { get; set; }
+    public List<CharCondition> TurnStartConditionsList { get; set; } = new List<CharCondition>();
+    public List<CharCondition> TurnEndConditionsList { get; set; } = new List<CharCondition>();
+    public List<CharCondition> RoundEndConditionsList { get; set; } = new List<CharCondition>();
+    public List<CharCondition> NeverEndingConditionsList { get; set; } = new List<CharCondition>();
+    public List<CharCondition> TotalConditionList { get; set; } = new List<CharCondition>();
     public EntityControllerType entityControllerType { get; set; }
     public ClassType classType { get; set; }
     public GameObject playableEntity { get; set; }

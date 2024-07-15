@@ -16,9 +16,9 @@
             cardName = "Third Berserker Card";
             initiative = 32;
             TopCardAction = new CardAction(CardDiscardActionType.Discard,"Attack 3", this);
-            TopCardAction.AddActionSequence(CharacterActionType.Attack,1,3,"AttackChop");
-            BottomCardAction = new CardAction(CardDiscardActionType.Discard,"Move 3", this);
-            BottomCardAction.AddActionSequence(CharacterActionType.Move,3,0,"");
+            TopCardAction.AddActionSequence(CharacterActionType.Attack,1,3,"AttackChop",null);
+            BottomCardAction = new CardAction(CardDiscardActionType.Shuffle,"Move 10", this);
+            BottomCardAction.AddActionSequence(CharacterActionType.Move,10,0,"",null);
 
         }
     }

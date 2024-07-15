@@ -234,22 +234,23 @@ public class BattleManager : MonoBehaviour
                     switch (selectionManager.lastSelectedCardAction.DiscardActionType)
                     {
                         case CardDiscardActionType.Active:
-                            selectionManager.lastSelectedCharacter.handDeck.Remove(selectionManager.lastSelectedCard);
                             selectionManager.lastSelectedCharacter.activeDeck.Add(selectionManager.lastSelectedCard);
+                            selectionManager.lastSelectedCharacter.handDeck.Remove(selectionManager.lastSelectedCard);
                             Debug.Log("switch - active");
                             break;
                         case CardDiscardActionType.Discard:
-                            selectionManager.lastSelectedCharacter.handDeck.Remove(selectionManager.lastSelectedCard);
                             selectionManager.lastSelectedCharacter.discardDeck.Add(selectionManager.lastSelectedCard);
+                            selectionManager.lastSelectedCharacter.handDeck.Remove(selectionManager.lastSelectedCard);
                             Debug.Log("switch - discard");
                             break;
                         case CardDiscardActionType.Lost:
-                            selectionManager.lastSelectedCharacter.handDeck.Remove(selectionManager.lastSelectedCard);
                             selectionManager.lastSelectedCharacter.lostDeck.Add(selectionManager.lastSelectedCard);
+                            selectionManager.lastSelectedCharacter.handDeck.Remove(selectionManager.lastSelectedCard);
                             Debug.Log("switch - lost");
                             break;
                         case CardDiscardActionType.Shuffle:
-                            //Shuffle the card deck back to the hand deck
+                            selectionManager.lastSelectedCharacter.handDeck.AddRange(selectionManager.lastSelectedCharacter.discardDeck);
+                            selectionManager.lastSelectedCharacter.discardDeck.Clear();
                             Debug.Log("switch - shuffle");
                             break;
                     }

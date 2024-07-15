@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using _Script.ConditionalEffects.Enum;
 using UnityEngine;
 
 public class CardAction
@@ -21,9 +22,13 @@ public class CardAction
 
    
 
-    public void AddActionSequence(CharacterActionType characterActionType, int actionRange, int actionValue,string animProp)
+    public void AddActionSequence(CharacterActionType characterActionType, int actionRange, int actionValue,string animProp, List<ApplicableConditions> applicableConditionsList)
     {
         CardActionSequence cardActionSequence = new CardActionSequence(characterActionType, actionRange, actionValue, animProp);
         cardActionSequencesList.Add(cardActionSequence);
+        if (applicableConditionsList != null)
+        {
+            cardActionSequence.Conditions.AddRange(applicableConditionsList);
+        }
     }
 }

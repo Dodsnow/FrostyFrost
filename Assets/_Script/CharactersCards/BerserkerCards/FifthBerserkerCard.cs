@@ -16,9 +16,9 @@
             cardName = "Fifth Berserker Card";
             initiative = 65;
             TopCardAction = new CardAction(CardDiscardActionType.Discard, "Attack 4", this);
-            TopCardAction.AddActionSequence(CharacterActionType.Attack, 1,4, "AttackSlice");
-            BottomCardAction = new CardAction(CardDiscardActionType.Discard,"Move 4", this);
-            BottomCardAction.AddActionSequence(CharacterActionType.Move, 4,0, "");
+            TopCardAction.AddActionSequence(CharacterActionType.Attack, 1,4, "AttackSlice",null);
+            BottomCardAction = new CardAction(CardDiscardActionType.Discard,"Move 10", this);
+            BottomCardAction.AddActionSequence(CharacterActionType.Move, 10,0, "",null);
 
         }
     }

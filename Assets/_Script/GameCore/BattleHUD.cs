@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using _Script.ConditionalEffects.Enum;
 using _Script.PlayableCharacters;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.UI;
 
 
@@ -59,7 +61,7 @@ public class BattleHUD : MonoBehaviour
     {
 
         if (playerCharacter.handDeck.Count <= 0) {
-4            Debug.LogWarning("Player is out of cards!");
+            Debug.LogWarning("Player is out of cards!");
         }
 
         for (int i = 0; i < playerCharacter.handDeck.Count; i++)
@@ -168,5 +170,30 @@ public class BattleHUD : MonoBehaviour
     public void SkipActionButton()
     {
         skipAction = true;
+    }
+    
+    public GameObject DisplayConditionIcon(ICharacter character, GameObject conditionIconPrefab)
+    { 
+        
+        GameObject icon = Instantiate(conditionIconPrefab, new Vector3(0, 1, 0), Quaternion.identity);
+        icon.transform.SetParent(character.HpSlider.GetComponentInChildren<Canvas>().GetComponentInChildren<Slider>().transform, false);
+        if (character.TotalConditionList.Count > 1)
+        {
+            Debug.Log(character.TotalConditionList.Count);
+            if (character.TotalConditionList.Count % 2 == 0)
+            {
+                float startingX = character.TotalConditionList.Count / 2f * 0.35f * -1f;
+                for (int x = 0; x < character.TotalConditionList.Count; x++)
+                {
+                    Debug.Log("Current x:" + " " + x);
+                    Debug.Log(startingX);
+                    character.TotalConditionList[x].Icon.transform.position += new Vector3((startingX + (x * 1)), 0, 0);
+                    Debug.Log("New Icon " + character.TotalConditionList[x].Name + " new position " + (startingX + x * 1));
+                }
+            }
+        }
+
+        return icon;
+
     }
 }

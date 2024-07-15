@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Collections;
+using _Script.ConditionalEffects.Enum;
 using UnityEngine;
 
 public class AiBehavior : MonoBehaviour
@@ -7,6 +8,7 @@ public class AiBehavior : MonoBehaviour
     [SerializeField] private CardActionManager _cardActionManager;
     [SerializeField] private BattleManager _battleManager;
     [SerializeField] private SpawnManager _spawnManager;
+    
 
 
     public IEnumerator AiActionPhase(AiCharacter aiCharacter)
@@ -49,7 +51,7 @@ public class AiBehavior : MonoBehaviour
                             {
                                 Debug.Log("Ai action phase - have to attack");
                                 _cardActionManager.Attack(aiCharacter, _spawnManager.playerCharacters[0],
-                                    currentSequence.ActionValue,currentSequence.AnimProp);
+                                    currentSequence.ActionValue,currentSequence.AnimProp,currentSequence.Conditions);
                             }
                             else
                             {

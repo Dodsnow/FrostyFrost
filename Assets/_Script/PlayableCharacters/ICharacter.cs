@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using _Script.ConditionalEffects;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -15,6 +16,11 @@ namespace _Script.PlayableCharacters
         ClassType classType { get; set; }
         GameObject playableEntity { get; set; }
         GameObject HpSlider { get; set; }
+        List<CharCondition> TurnStartConditionsList { get; set; }
+        List<CharCondition> TurnEndConditionsList { get; set; }
+        List<CharCondition> RoundEndConditionsList { get; set; }
+        List<CharCondition> NeverEndingConditionsList { get; set; }
+        List<CharCondition> TotalConditionList { get; set; }
 
         EntityControllerType entityControllerType { get; set; }
     
