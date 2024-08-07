@@ -2,10 +2,13 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Xml;
+using _Script.ConditionalEffects;
+using _Script.ConditionalEffects.Enum;
 using _Script.PlayableCharacters;
 using NUnit.Framework.Constraints;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
@@ -28,6 +31,8 @@ public class SelectionManager : MonoBehaviour
     private GameObject _finalTarget;
     public GameObject _lastSelectedObject;
     public SkipActionButton _skipActionButton;
+   
+   
 
 
     private void Awake()
@@ -36,40 +41,26 @@ public class SelectionManager : MonoBehaviour
         {
             mainCamera = Camera.main;
         }
+
+        SelectionManagerReference.selectionManager = this;
     }
 
     public void HandleClick(Vector3 mousePosition)
     {
         GameObject result;
-
+        if (SelectionCharacter(mousePosition, out result) && result.gameObject.CompareTag("PlayerCharacter"))
+        {
+            battleHud.ChangeCharacterPortrait(result.GetComponent<PlayerCharacter>());
+        }
+        else if (SelectionCharacter(mousePosition, out result) && result.gameObject.CompareTag("Monster"))
+        {
+            battleHud.ChangeEnemyPortrait(result.GetComponent<AiCharacter>());
+        }
         if (FindTarget(mousePosition, out result))
         {
-            Debug.Log(result.name);
-            if (selectionMask.value == LayerMask.GetMask("Card"))
+            if (battleManager.state == BattleState.CharacterTurn)
             {
-                if (_playerTurnState == PlayerTurnState.CardRoundSelection)
-                {
-                    SelectCard(lastSelectedCharacter, result);
-                }
-            }
-            else if (battleManager.state == BattleState.CharacterTurn)
-            {
-                if (selectionMask.value == LayerMask.GetMask("ActionBar"))
-                {
-                    GameObject card = result.transform.root.gameObject;
-                    CharacterCard characterCard = battleHud.CardDictionary[card];
-                    _lastSelectedObject = result;
-                    // battleHud.RemoveDisplayCards();
-                    if (result.CompareTag("TopCardAction"))
-                    {
-                        StartCoroutine(CardActionChoose(characterCard.TopCardAction));
-                    }
-                    else if (result.CompareTag("BottomCardAction"))
-                    {
-                        StartCoroutine(CardActionChoose(characterCard.BottomCardAction));
-                    }
-                }
-                else if (selectionMask.value == LayerMask.GetMask("hex"))
+                if (selectionMask.value == LayerMask.GetMask("hex"))
                 {
                     _finalHexagon = result.GetComponent<Hexagon>();
                     if (AstarPathfinding.GetDistance(lastSelectedCharacter.currentHexPosition.hexPosition,
@@ -86,6 +77,12 @@ public class SelectionManager : MonoBehaviour
                 }
                 else if (selectionMask.value == LayerMask.GetMask("Monster"))
                 {
+                    if (result.GetComponent<AiCharacter>().TotalConditionList
+                        .Exists(x => x.ApplicableCondition == ApplicableConditions.Invisible))
+                    {
+                        Debug.LogWarning("Invisible target");
+                        return;
+                    }
                     Debug.Log("Start of attack");
                     _finalTarget = result;
                     if (AstarPathfinding.GetDistance(lastSelectedCharacter.currentHexPosition.hexPosition,
@@ -121,13 +118,18 @@ public class SelectionManager : MonoBehaviour
 
     public IEnumerator CardActionChoose(CardAction cardAction)
     {
-        lastSelectedCardAction = cardAction;
+        lastSelectedCardAction = UtilsReference.utils.CopyCardAction(cardAction);
         lastSelectedCard = cardAction.CharacterCard;
         battleHud.skipActionButton.gameObject.SetActive(true);
-            
+        battleHud.ToggleCardsVisibility(false);    
             if (cardAction.cardActionSequencesList[battleManager.currentActionSequenceIndex].CharacterActionType ==
                 CharacterActionType.Move)
             {
+                if (lastSelectedCharacter.TotalConditionList.Exists(x =>
+                        x.ApplicableCondition == ApplicableConditions.Immobilize))
+                {
+                    battleHud.skipAction = true;
+                }
                 _finalHexagon = null;
                 selectionMask = LayerMask.GetMask("hex");
                 List<Hexagon> radius = hexGrid.GetTileInRadius(lastSelectedCharacter.currentHexPosition,
@@ -150,6 +152,11 @@ public class SelectionManager : MonoBehaviour
             else if (cardAction.cardActionSequencesList[battleManager.currentActionSequenceIndex].CharacterActionType ==
                     CharacterActionType.Attack)
             {
+                if (lastSelectedCharacter.TotalConditionList.Exists(x =>
+                        x.ApplicableCondition == ApplicableConditions.Disarm))
+                {
+                    battleHud.skipAction = true;
+                }
                 selectionMask = LayerMask.GetMask("Monster");
                 List<Hexagon> radius = hexGrid.GetTileInRadius(lastSelectedCharacter.currentHexPosition,
                     cardAction.cardActionSequencesList[battleManager.currentActionSequenceIndex].ActionRange);
@@ -182,10 +189,11 @@ public class SelectionManager : MonoBehaviour
     public void SelectCard(PlayerCharacter character, GameObject displayedCard)
     {
         CharacterCard card = null;
+        
         battleHud.CardDictionary.TryGetValue(displayedCard, out card);
         if (card != null)
         {
-            if (_playerTurnState == PlayerTurnState.CardHandSelection ||
+           if (_playerTurnState == PlayerTurnState.CardHandSelection ||
                 _playerTurnState == PlayerTurnState.CardRoundSelection)
             {
                 if (character.SelectedCards.Exists(x => x == card))
@@ -197,6 +205,7 @@ public class SelectionManager : MonoBehaviour
                 else if (character.SelectedCards.Count < 2)
                 {
                     character.SelectedCards.Add(card);
+                    
                     if (character.SelectedCards.Count == 2)
                     {
                         StartCoroutine(WaifForConfirmation());
@@ -229,7 +238,7 @@ public class SelectionManager : MonoBehaviour
         }
     }
 
-    public bool FindTarget(Vector3 mousePosition, out GameObject result)
+    private bool FindTarget(Vector3 mousePosition, out GameObject result)
     {
         RaycastHit hit;
         Ray ray = mainCamera.ScreenPointToRay(mousePosition);
@@ -242,4 +251,24 @@ public class SelectionManager : MonoBehaviour
         result = null;
         return false;
     }
+
+    private bool SelectionCharacter(Vector3 mousePosition, out GameObject result)
+    {
+        RaycastHit hit;
+        Ray ray = mainCamera.ScreenPointToRay(mousePosition);
+        if (Physics.Raycast(ray, out hit, Mathf.Infinity, LayerMask.GetMask("Character")) || Physics.Raycast(ray, out hit, Mathf.Infinity, LayerMask.GetMask("Monster")))
+        {
+            result = hit.collider.gameObject;
+            return true;
+        }
+       
+        result = null;
+        return false;
+    }
+}
+
+
+public static class SelectionManagerReference
+{
+    public static SelectionManager selectionManager;
 }

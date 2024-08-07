@@ -11,6 +11,7 @@ public class SpawnManager : MonoBehaviour
     public List<PlayerCharacter> playerCharacters = new List<PlayerCharacter>();
     public List<AiCharacter> aiCharacters = new List<AiCharacter>();
     public GameObject HpSliderPrefab;
+    public BattleHUD battleHud;
     
 
 
@@ -27,7 +28,7 @@ public class SpawnManager : MonoBehaviour
         player.entityControllerType = EntityControllerType.Player;
         player.CharacterName = playerCharacterTemplate.characterName;
         player.MaxHealth = playerCharacterTemplate.maxHealth;
-        player.CurrentHealth = player.MaxHealth;
+        player.CurrentHealth = player.MaxHealth;        
         player.HpSlider = Instantiate(HpSliderPrefab, hex.transform.position + new Vector3(0, 2, 0), Quaternion.identity);
         player.slider = player.HpSlider.GetComponentInChildren<Canvas>().GetComponentInChildren<Slider>();
         player.slider.maxValue = player.MaxHealth;
@@ -35,8 +36,27 @@ public class SpawnManager : MonoBehaviour
         player.HpSlider.GetComponentInChildren<Canvas>().renderMode = RenderMode.WorldSpace;
         player.HpSlider.GetComponentInChildren<Canvas>().worldCamera = Camera.main;
         player.handSize = playerCharacterTemplate.handSize;
+        player.CharacterIconSprite = playerCharacterTemplate.characterIcon;
+        // player.classCardPrefab = playerCharacterTemplate.characterCardPrefab;
+        // IItem tempItem = PlayerInventory.Inventory[0];
+        Debug.Log("Player inventory number of Items :" + PlayerInventory.Inventory.Count);
+        // Debug.Log(tempItem.ItemName);
+        foreach (GameItem item in PlayerInventory.Inventory)
+        {
+            
+            Debug.Log("Equipping item" + item.ItemName);
+
+            if (item.isEquippable)
+            {
+                player.EquippedInventory.Add(item);
+            }
+        }
+        battleHud.ShowBagItems();
+        // battleHud.ShowEquippedItems();
         playerCharacters.Add(player);
         hex.isOccupied = true;
+
+
     }
 
     public void SpawnAICharacter(int aiCharacterID, Hexagon hex)
@@ -61,6 +81,7 @@ public class SpawnManager : MonoBehaviour
         ai.HpSlider.GetComponentInChildren<Canvas>().worldCamera = Camera.main;
         ai.characterCards = AiCardManager.aiCardsDictionary[ai.classType];
         aiCharacters.Add(ai);
+        ai.CharacterIconSprite = aiCharacterTemplate.characterIcon;
         hex.isOccupied = true;
 
 
