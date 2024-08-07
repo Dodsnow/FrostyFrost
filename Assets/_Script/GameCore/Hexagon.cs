@@ -26,6 +26,10 @@ public class Hexagon : MonoBehaviour
         _highLight.ToggleGlow(true);
     }
 
+    public void EnableExtraHighlight()
+    {
+        _highLight.ToggleExtraGlow();
+    }
     public void DisableHighLight()
     {
         
