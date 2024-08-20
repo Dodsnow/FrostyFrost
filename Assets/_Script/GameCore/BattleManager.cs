@@ -340,6 +340,7 @@ public class BattleManager : MonoBehaviour
         character.RoundEndConditionsList.Clear();
         battleHUD.SortConditions(character);
     }
+    
 }
 
 public static class BattleManagerReference

@@ -11,16 +11,16 @@ public interface IItem
     string ItemDescription { get; set; }
     bool isEquippable { get; set; }
     
-    public void UseItem(ICharacter source, ICharacter target)
+    public virtual void UseItem(ICharacter source, ICharacter target)
     {
             
     }
-    public void EquipItem(ICharacter source)
+    public virtual void EquipItem(ICharacter source)
     {
        
     }
 
-    public void OnAttackModifier(ICharacter source)
+    public virtual void OnAttackModifier(ICharacter source)
     {
         
     }

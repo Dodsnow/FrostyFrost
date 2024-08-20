@@ -6,9 +6,9 @@ using UnityEngine;
     {
  
         
-        public void UseItem(ICharacter source, ICharacter target)
+        public override void UseItem(ICharacter source, ICharacter target)
         {
             Debug.Log("Healing Potion");
-         target.ModifyHealth(5);
+            target.ModifyHealth(5);
         }
     }

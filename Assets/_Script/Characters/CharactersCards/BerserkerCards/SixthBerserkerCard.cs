@@ -10,7 +10,7 @@
         public int initiative { get; set; }
         public CardAction TopCardAction { get; set; }
         public CardAction BottomCardAction { get; set; }
-        public Image ConditionImage { get; set; }
+        
 
         public SixthBerserkerCard()  
         {

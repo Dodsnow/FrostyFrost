@@ -49,6 +49,7 @@ public class SpawnManager : MonoBehaviour
             if (item.isEquippable)
             {
                 player.EquippedInventory.Add(item);
+                item.EquipItem(player);
             }
         }
         battleHud.ShowBagItems();

@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using _Script.ConditionalEffects;
 using _Script.ConditionalEffects.Enum;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -19,9 +21,12 @@ namespace _Script.ConditionalEffects
         public string ConditionID;
         public string ConditionName;
         public GameObject ConditionIconPrefab;
+        public Sprite ConditionIcon;
         public ApplicableConditions ConditionType;
         public int ConditionValue;
         public bool isPositive;
         
+
     }
 }
+

@@ -11,28 +11,28 @@ using Unity.VisualScripting;
         private void Awake()
         {
             ItemManagerReference.itemManager = this;
-            var armor = CreateItem("TestArmor");
+            TestArmor armor = CreateItem<TestArmor>("TestArmor");
             if (armor != null)
             {
                 Debug.Log("Item created: " + armor.ItemName);
                 PlayerInventory.Inventory.Add(armor);
             }
 
-            var weapon = CreateItem("TestAxe");
+            TestAxe weapon = CreateItem<TestAxe>("TestAxe");
             if (weapon != null)
             {
                 Debug.Log("Item created: " + weapon.ItemName);
                 PlayerInventory.Inventory.Add(weapon);
             }
 
-            var helm = CreateItem("TestHelm");
+            TestHelm helm = CreateItem<TestHelm>("TestHelm");
             if (helm != null)
             {
                 Debug.Log("Item created: " + helm.ItemName);
                 PlayerInventory.Inventory.Add(helm);
             }
             
-            var potion = CreateItem("TestPotion") as TestHealingPotion;
+            TestHealingPotion potion = CreateItem<TestHealingPotion>("TestPotion");
             if (potion != null)
             {
                 Debug.Log("Item created: " + potion.ItemName);
@@ -40,25 +40,27 @@ using Unity.VisualScripting;
             }
            
         }
-        public GameItem CreateItem(string itemID)
+        
+        public T CreateItem<T>(string itemID)
         {
             ItemTemplate itemTemplate = itemDB.items.Find(x => x.itemID == itemID);
-            GameItem game = new GameItem
-            {
-                ItemCost = itemTemplate.itemCost,
-                ItemIcon = itemTemplate.itemIcon,
-                ItemName = itemTemplate.itemName,
-                ItemType = itemTemplate.ItemType,
-                ItemUsageType = itemTemplate.itemUsageType,
-                ItemDescription = itemTemplate.itemDescription,
-                isEquippable = itemTemplate.isEquippable
-            };
+            if (itemTemplate == null ) { return default; };
+            T myNewItem = Activator.CreateInstance<T>();
+            GameItem gameItem = myNewItem as GameItem;
 
-
+                gameItem.ItemCost = itemTemplate.itemCost;
+                gameItem.ItemIcon = itemTemplate.itemIcon;
+                gameItem.ItemName = itemTemplate.itemName;
+                gameItem.ItemType = itemTemplate.ItemType;
+                gameItem.ItemUsageType = itemTemplate.itemUsageType;
+                gameItem.ItemDescription = itemTemplate.itemDescription;
+                gameItem.isEquippable = itemTemplate.isEquippable;
+        
+    
                 //Debug.Log("Item Created - " + itemTemplate.itemName + " / "+ item.ItemName);
                 //Debug.Log("Desc - " + itemTemplate.itemDescription + " / "+ item.ItemDescription);
 
-            return game;
+            return myNewItem;
         }
         
     }

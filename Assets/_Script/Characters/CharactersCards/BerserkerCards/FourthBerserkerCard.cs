@@ -1,6 +1,7 @@
 
     using System;
     using System.Collections.Generic;
+    using _Script.ConditionalEffects;
     using _Script.ConditionalEffects.Enum;
     using UnityEngine;
     using UnityEngine.UI;
@@ -12,7 +13,7 @@
         public int initiative { get; set; }
         public CardAction TopCardAction { get; set; }
         public CardAction BottomCardAction { get; set; }
-        public Image ConditionImage { get; set; }
+        
 
         public FourthBerserkerCard()
         {
@@ -27,4 +28,6 @@
             
 
         }
+        
+        
     }
