@@ -164,14 +164,14 @@ public class BattleHUD : MonoBehaviour
                     descriptionTextBlock.text = description.Substring(startIndex, endIndex - startIndex);
                     newDescription += description.Substring(startIndex, endIndex - startIndex);
                     Debug.Log("String Block " + textBlockIndex + " <" +
-                              description.Substring(startIndex, endIndex - startIndex) + "> "); 
+                              description.Substring(startIndex, endIndex - startIndex) + "> ");
                 }
-                
+
                 for (int x = i + 1; x < description.Length; x++)
                 {
                     if (description.Substring(x, 1) == "#")
                     {
-                        Debug.Log(description.Substring(i + 1, x  - (i + 1)));
+                        Debug.Log(description.Substring(i + 1, x - (i + 1)));
                         if (ConditionTag.HasConditionTag(description.Substring(i + 1, x - (i + 1))))
                         {
                             Sprite conditionIcon =
@@ -190,24 +190,42 @@ public class BattleHUD : MonoBehaviour
                                         cardUI.transform.Find("TopAction").transform);
                                     conditionIconPrefab.GetComponent<RectTransform>().anchoredPosition =
                                         new Vector2(2, 0);
+                                    conditionIconPrefab.GetComponent<RectTransform>().localScale = new Vector2(1, 1);
+
                                 }
                                 else
                                 {
                                     conditionIconPrefab.transform.SetParent(textBlocks[textBlockIndex - 1].transform);
                                     conditionIconPrefab.GetComponent<RectTransform>().anchoredPosition =
                                         new Vector2(2, 0);
+                                    
                                 }
-                                conditionIconPrefab.GetComponent<RectTransform>().sizeDelta = new Vector2(1, 1);
-                                if (textBlockIndex == 1)
+
+                                if (textBlocks[textBlockIndex - 1].GetComponent<RectTransform>().localScale.x > 1)
                                 {
-                                    conditionIconPrefab.GetComponent<RectTransform>().localScale = new Vector3(4, 4, 4);
+                                    conditionIconPrefab.GetComponent<RectTransform>().localScale = new Vector2(4, 4);
                                 }
-                                
-                                
-                                
+
+                                else
+                                {
+                                    conditionIconPrefab.GetComponent<RectTransform>().localScale = new Vector2(1, 1);
+                                }
+
+                                conditionIconPrefab.GetComponent<RectTransform>().sizeDelta = new Vector2(1, 1);
+                                if (textBlockIndex > 1 && conditionIconPrefab.transform.GetComponent<RectTransform>().localScale.x > 1f)
+                                {
+                                    Debug.Log("Scale is if " + conditionIconPrefab.GetComponent<RectTransform>().localScale);
+                                    conditionIconPrefab.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
+                                }
+                                else
+                                {
+                                    Debug.Log("Scale is esle " + conditionIconPrefab.GetComponent<RectTransform>().localScale);
+
+                                    conditionIconPrefab.GetComponent<RectTransform>().localScale = new Vector3(4, 4, 4);
+
+                                }
                             }
                         }
-                       
 
 
                         startIndex = x + 1;
@@ -336,19 +354,20 @@ public class BattleHUD : MonoBehaviour
     {
         DisplayButton(false);
         BattleHUDReference.battleHUD = this;
-         itemSlotUI[0] = new ItemSlotUI(inventorySlots[0], ItemType.Helm);
-                itemSlotUI[1] = new ItemSlotUI(inventorySlots[1], ItemType.Armor);
-                itemSlotUI[2] = new ItemSlotUI(inventorySlots[2], ItemType.Gloves);
-                itemSlotUI[3] = new ItemSlotUI(inventorySlots[3], ItemType.MainHand);
-                itemSlotUI[4] = new ItemSlotUI(inventorySlots[4], ItemType.OffHand);
-                itemSlotUI[5] = new ItemSlotUI(inventorySlots[5], ItemType.Pants);
-                itemSlotUI[6] = new ItemSlotUI(inventorySlots[6], ItemType.Boots); itemSlotUI[0] = new ItemSlotUI(inventorySlots[0], ItemType.Helm);
-                itemSlotUI[1] = new ItemSlotUI(inventorySlots[1], ItemType.Armor);
-                itemSlotUI[2] = new ItemSlotUI(inventorySlots[2], ItemType.Gloves);
-                itemSlotUI[3] = new ItemSlotUI(inventorySlots[3], ItemType.MainHand);
-                itemSlotUI[4] = new ItemSlotUI(inventorySlots[4], ItemType.OffHand);
-                itemSlotUI[5] = new ItemSlotUI(inventorySlots[5], ItemType.Pants);
-                itemSlotUI[6] = new ItemSlotUI(inventorySlots[6], ItemType.Boots);
+        itemSlotUI[0] = new ItemSlotUI(inventorySlots[0], ItemType.Helm);
+        itemSlotUI[1] = new ItemSlotUI(inventorySlots[1], ItemType.Armor);
+        itemSlotUI[2] = new ItemSlotUI(inventorySlots[2], ItemType.Gloves);
+        itemSlotUI[3] = new ItemSlotUI(inventorySlots[3], ItemType.MainHand);
+        itemSlotUI[4] = new ItemSlotUI(inventorySlots[4], ItemType.OffHand);
+        itemSlotUI[5] = new ItemSlotUI(inventorySlots[5], ItemType.Pants);
+        itemSlotUI[6] = new ItemSlotUI(inventorySlots[6], ItemType.Boots);
+        itemSlotUI[0] = new ItemSlotUI(inventorySlots[0], ItemType.Helm);
+        itemSlotUI[1] = new ItemSlotUI(inventorySlots[1], ItemType.Armor);
+        itemSlotUI[2] = new ItemSlotUI(inventorySlots[2], ItemType.Gloves);
+        itemSlotUI[3] = new ItemSlotUI(inventorySlots[3], ItemType.MainHand);
+        itemSlotUI[4] = new ItemSlotUI(inventorySlots[4], ItemType.OffHand);
+        itemSlotUI[5] = new ItemSlotUI(inventorySlots[5], ItemType.Pants);
+        itemSlotUI[6] = new ItemSlotUI(inventorySlots[6], ItemType.Boots);
     }
 
     private void Start()
@@ -356,8 +375,6 @@ public class BattleHUD : MonoBehaviour
         CardReferences cardReferences = FindObjectOfType<CardReferences>();
         CardClassPrefab[ClassType.Berserker] = cardReferences._cardPrefabs[0];
         CardClassPrefab[ClassType.AISkeleton] = cardReferences._cardPrefabs[1];
-
-       
     }
 
 
