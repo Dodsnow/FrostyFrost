@@ -9,9 +9,9 @@ public interface CharacterCard
 
     CardAction BottomCardAction { get; set; }
     
-    Image ConditionImage { get; set; } 
+   
+
     
-  
     
     
 }

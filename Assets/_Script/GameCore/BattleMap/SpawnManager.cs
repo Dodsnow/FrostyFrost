@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using _Script.PlayableCharacters;
 using UnityEngine;
 using UnityEngine.UI;
+// using UnityEngine.UIElements;
 
 
 public class SpawnManager : MonoBehaviour
@@ -49,6 +50,7 @@ public class SpawnManager : MonoBehaviour
             if (item.isEquippable)
             {
                 player.EquippedInventory.Add(item);
+                item.EquipItem(player);
             }
         }
         battleHud.ShowBagItems();

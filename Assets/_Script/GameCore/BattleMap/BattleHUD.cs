@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Net;
 using _Script.ConditionalEffects;
 using _Script.ConditionalEffects.Enum;
 using _Script.PlayableCharacters;
@@ -10,7 +11,10 @@ using UnityEngine;
 using UnityEngine.Assertions.Must;
 using UnityEngine.Rendering;
 using UnityEngine.Serialization;
-using UnityEngine.UI;
+using UnityEngine.UIElements;
+using Button = UnityEngine.UI.Button;
+using Image = UnityEngine.UI.Image;
+using Slider = UnityEngine.UI.Slider;
 
 
 public class BattleHUD : MonoBehaviour
@@ -48,9 +52,6 @@ public class BattleHUD : MonoBehaviour
     // [SerializeField] private SelectionManager _selectionManager;
 
 
-    
-    
-
     //TODO MAKE IT WORK, BITCH!!!!!
     // public void DisplaySelectedCard(ICharacter character)
     // {
@@ -72,7 +73,8 @@ public class BattleHUD : MonoBehaviour
         {
             // GameObject card = CreateCardVisual(CardClassPrefab[character.classType],
             //     new Vector3(0, 3.25f, 10) + new Vector3(3.5f * i, 0, 0), character.SelectedCards[i]);
-            GameObject card = CreateCardVisual(CardClassPrefab[character.classType], _characterCardCanvas.transform.position + new Vector3(240 * i,0,0),
+            GameObject card = CreateCardVisual(CardClassPrefab[character.classType],
+                _characterCardCanvas.transform.position + new Vector3(240 * i, 0, 0),
                 character.SelectedCards[i]);
 
             CardDictionary.Add(card, character.SelectedCards[i]);
@@ -102,7 +104,7 @@ public class BattleHUD : MonoBehaviour
                 // GameObject card = CreateCardVisual(CardClassPrefab[playerCharacter.classType],
                 //     new Vector3(0, 3.25f, 10) + new Vector3(3.5f * i, 0, 0), playerCharacter.handDeck[i]);
                 GameObject card = CreateCardVisual(CardClassPrefab[playerCharacter.classType],
-                    _characterCardCanvas.transform.position + new Vector3(240 * i,0,0), playerCharacter.handDeck[i]);
+                    _characterCardCanvas.transform.position + new Vector3(240 * i, 0, 0), playerCharacter.handDeck[i]);
                 CardDictionary.Add(card, playerCharacter.handDeck[i]);
                 displayCards.Add(card);
             }
@@ -115,36 +117,143 @@ public class BattleHUD : MonoBehaviour
 
     private GameObject CreateCardVisual(GameObject cardPrefab, Vector3 position, CharacterCard card)
     {
-        
-        GameObject cardUI = Instantiate(cardPrefab,new Vector3(_characterCardCanvas.transform.position.x,_characterCardCanvas.transform.position.y,_characterCardCanvas.transform.position.z), Quaternion.identity);
+        GameObject cardUI = Instantiate(cardPrefab, new Vector3(_characterCardCanvas.transform.position.x,
+            _characterCardCanvas.transform.position.y,
+            _characterCardCanvas.transform.position.z), Quaternion.identity);
         cardUI.transform.SetParent(GameObject.Find("Canvas").transform, false);
-
-
         cardUI.transform.Find("CardName").GetComponent<TextMeshProUGUI>().text = card.cardName;
-        cardUI.transform.Find("TopAction").GetComponent<TextMeshProUGUI>().text = card.TopCardAction.Discription;
-        if (card.TopCardAction.cardActionSequencesList.Find(x => x.Conditions != null) != null)
-        {
-            foreach (var condition in card.TopCardAction.cardActionSequencesList.Find(x => x.Conditions != null)
-                         .Conditions)
-            {
-                for (int i = 0; i < card.TopCardAction.cardActionSequencesList.Count; i++)
-                {
 
-                    Debug.Log("Condition found: " + card.TopCardAction.cardActionSequencesList
-                        .Find(x => x.Conditions != null).Conditions[i]);
-                    cardUI.transform.Find("TopAction").transform.Find("Condition").gameObject.SetActive(true);
-                    break;
+        bool isTextChanged = false;
+        string description = card.TopCardAction.Discription;
+        string newDescription = "";
+        int startIndex = 0;
+        int endIndex = description.Length;
+        GameObject[] textBlocks = new GameObject[20];
+        int textBlockIndex = 0;
+        Debug.Log("Discription Length " + card.TopCardAction.Discription.Length);
+
+        for (int i = 0; i < card.TopCardAction.Discription.Length; i++)
+        {
+            if (description.Substring(i, 1) == "@")
+            {
+                endIndex = i;
+                if (description.Substring(startIndex, endIndex - startIndex) != "" ||
+                    endIndex > startIndex)
+                {
+                    textBlockIndex++;
+                    isTextChanged = true;
+                    TextMeshProUGUI descriptionTextBlock =
+                        Instantiate(cardUI.transform.Find("TopAction").GetComponent<TextMeshProUGUI>());
+                    textBlocks[textBlockIndex] = descriptionTextBlock.gameObject;
+
+                    if (textBlockIndex == 1)
+                    {
+                        descriptionTextBlock.transform.SetParent(cardUI.transform.Find("TopAction").transform);
+                        descriptionTextBlock.GetComponent<RectTransform>().anchoredPosition =
+                            new Vector2(-1, 1);
+                    }
+                    else
+                    {
+                        descriptionTextBlock.transform.SetParent(textBlocks[textBlockIndex - 1].transform);
+                        ;
+                        descriptionTextBlock.GetComponent<RectTransform>().anchoredPosition =
+                            new Vector2(-1, 0);
+                    }
+
+                    descriptionTextBlock.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
+                    descriptionTextBlock.text = description.Substring(startIndex, endIndex - startIndex);
+                    newDescription += description.Substring(startIndex, endIndex - startIndex);
+                    Debug.Log("String Block " + textBlockIndex + " <" +
+                              description.Substring(startIndex, endIndex - startIndex) + "> ");
+                }
+
+                for (int x = i + 1; x < description.Length; x++)
+                {
+                    if (description.Substring(x, 1) == "#")
+                    {
+                        Debug.Log(description.Substring(i + 1, x - (i + 1)));
+                        if (ConditionTag.HasConditionTag(description.Substring(i + 1, x - (i + 1))))
+                        {
+                            Sprite conditionIcon =
+                                GetConditionIconPrefab(description.Substring(i + 1, x - (i + 1)));
+                            if (conditionIcon != null)
+                            {
+                                textBlockIndex++;
+                                GameObject conditionIconPrefab =
+                                    Instantiate(cardUI.transform.Find("ConditionIcon").gameObject);
+                                textBlocks[textBlockIndex] = conditionIconPrefab;
+                                conditionIconPrefab.GetComponent<Image>().sprite = conditionIcon;
+                                conditionIconPrefab.SetActive(true);
+                                if (textBlockIndex == 1)
+                                {
+                                    conditionIconPrefab.transform.SetParent(
+                                        cardUI.transform.Find("TopAction").transform);
+                                    conditionIconPrefab.GetComponent<RectTransform>().anchoredPosition =
+                                        new Vector2(2, 0);
+                                    conditionIconPrefab.GetComponent<RectTransform>().localScale = new Vector2(1, 1);
+
+                                }
+                                else
+                                {
+                                    conditionIconPrefab.transform.SetParent(textBlocks[textBlockIndex - 1].transform);
+                                    conditionIconPrefab.GetComponent<RectTransform>().anchoredPosition =
+                                        new Vector2(2, 0);
+                                    
+                                }
+
+                                if (textBlocks[textBlockIndex - 1].GetComponent<RectTransform>().localScale.x > 1)
+                                {
+                                    conditionIconPrefab.GetComponent<RectTransform>().localScale = new Vector2(4, 4);
+                                }
+
+                                else
+                                {
+                                    conditionIconPrefab.GetComponent<RectTransform>().localScale = new Vector2(1, 1);
+                                }
+
+                                conditionIconPrefab.GetComponent<RectTransform>().sizeDelta = new Vector2(1, 1);
+                                if (textBlockIndex > 1 && conditionIconPrefab.transform.GetComponent<RectTransform>().localScale.x > 1f)
+                                {
+                                    Debug.Log("Scale is if " + conditionIconPrefab.GetComponent<RectTransform>().localScale);
+                                    conditionIconPrefab.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
+                                }
+                                else
+                                {
+                                    Debug.Log("Scale is esle " + conditionIconPrefab.GetComponent<RectTransform>().localScale);
+
+                                    conditionIconPrefab.GetComponent<RectTransform>().localScale = new Vector3(4, 4, 4);
+
+                                }
+                            }
+                        }
+
+
+                        startIndex = x + 1;
+                        endIndex = startIndex;
+                        break;
+                    }
                 }
             }
+            else if (i + 1 == description.Length)
+            {
+                newDescription += description.Substring(startIndex, endIndex - startIndex);
+            }
+        }
+
+        if (!isTextChanged)
+        {
+            cardUI.transform.Find("TopAction").GetComponent<TextMeshProUGUI>().text = newDescription;
         }
         else
         {
-            cardUI.transform.Find("TopAction").GetComponent<TextMeshProUGUI>().color = Color.black;
+            cardUI.transform.Find("TopAction").GetComponent<TextMeshProUGUI>().text = "";
         }
+
 
         if (card.BottomCardAction != null)
         {
-            cardUI.transform.Find("BottomAction").GetComponent<TextMeshProUGUI>().text = card.BottomCardAction.Discription;
+            cardUI.transform.Find("BottomAction").GetComponent<TextMeshProUGUI>().text =
+                card.BottomCardAction.Discription;
         }
         else
         {
@@ -156,7 +265,35 @@ public class BattleHUD : MonoBehaviour
         return cardUI;
     }
 
-  
+    private Sprite GetConditionIconPrefab(string conditionID)
+    {
+        // switch (conditionID)
+        // {
+        //     case ConditionTag.Bleed:
+        //         conditionID = "Bleed";
+        //         break;
+        //     case ConditionTag.Stun:
+        //         conditionID = "Stun";
+        //         break;
+        //     case ConditionTag.Poison:
+        //         conditionID = "Poison";
+        //         break;
+        //     case ConditionTag.Weaken:
+        //         conditionID = "Weaken";
+        //         break;
+        // }
+        foreach (var condition in _characterConditionsDB.characterConditions)
+        {
+            if (condition.ConditionID == conditionID)
+            {
+                return condition.ConditionIcon;
+            }
+        }
+
+        return null;
+    }
+
+
     public void RemoveDisplayCards()
     {
         foreach (GameObject card in displayCards)
@@ -190,6 +327,7 @@ public class BattleHUD : MonoBehaviour
             }
         }
     }
+
     public void ToggleCardsVisibility(bool flag)
     {
         foreach (GameObject card in displayCards)
@@ -198,7 +336,7 @@ public class BattleHUD : MonoBehaviour
         }
     }
 
-    
+
     public void DisplayButton(bool flag)
     {
         applyButton.gameObject.SetActive(flag);
@@ -216,14 +354,6 @@ public class BattleHUD : MonoBehaviour
     {
         DisplayButton(false);
         BattleHUDReference.battleHUD = this;
-    }
-
-    private void Start()
-    {
-        CardReferences cardReferences = FindObjectOfType<CardReferences>();
-        CardClassPrefab[ClassType.Berserker] = cardReferences._cardPrefabs[0];
-        CardClassPrefab[ClassType.AISkeleton] = cardReferences._cardPrefabs[1];
-
         itemSlotUI[0] = new ItemSlotUI(inventorySlots[0], ItemType.Helm);
         itemSlotUI[1] = new ItemSlotUI(inventorySlots[1], ItemType.Armor);
         itemSlotUI[2] = new ItemSlotUI(inventorySlots[2], ItemType.Gloves);
@@ -231,7 +361,20 @@ public class BattleHUD : MonoBehaviour
         itemSlotUI[4] = new ItemSlotUI(inventorySlots[4], ItemType.OffHand);
         itemSlotUI[5] = new ItemSlotUI(inventorySlots[5], ItemType.Pants);
         itemSlotUI[6] = new ItemSlotUI(inventorySlots[6], ItemType.Boots);
-        
+        itemSlotUI[0] = new ItemSlotUI(inventorySlots[0], ItemType.Helm);
+        itemSlotUI[1] = new ItemSlotUI(inventorySlots[1], ItemType.Armor);
+        itemSlotUI[2] = new ItemSlotUI(inventorySlots[2], ItemType.Gloves);
+        itemSlotUI[3] = new ItemSlotUI(inventorySlots[3], ItemType.MainHand);
+        itemSlotUI[4] = new ItemSlotUI(inventorySlots[4], ItemType.OffHand);
+        itemSlotUI[5] = new ItemSlotUI(inventorySlots[5], ItemType.Pants);
+        itemSlotUI[6] = new ItemSlotUI(inventorySlots[6], ItemType.Boots);
+    }
+
+    private void Start()
+    {
+        CardReferences cardReferences = FindObjectOfType<CardReferences>();
+        CardClassPrefab[ClassType.Berserker] = cardReferences._cardPrefabs[0];
+        CardClassPrefab[ClassType.AISkeleton] = cardReferences._cardPrefabs[1];
     }
 
 
@@ -275,7 +418,6 @@ public class BattleHUD : MonoBehaviour
                 bagSlots[x].tag = "ConsumableItem";
                 bagSlots[x].GetComponent<BagSlotUI>().item = PlayerInventory.Bag[x];
             }
-           
         }
     }
 
@@ -309,7 +451,8 @@ public class BattleHUD : MonoBehaviour
         }
         else
         {
-            character.TotalConditionList[0].Icon.transform.position = slider.transform.position + new Vector3(0, 1, 0);
+            character.TotalConditionList[0].Icon.transform.position =
+                slider.transform.position + new Vector3(0, 1, 0);
         }
     }
 
@@ -322,6 +465,7 @@ public class BattleHUD : MonoBehaviour
         initiativeIcon.transform.SetParent(_characterInitiativePanel.transform);
         initiativeIcon.GetComponentInChildren<RectTransform>().pivot.Set(0.5f, 0.5f);
     }
+
     public void RemoveObjectsFromInitiativeHud(ICharacter character)
     {
         foreach (GameObject icon in _characterIconsList)
@@ -334,7 +478,7 @@ public class BattleHUD : MonoBehaviour
             }
         }
     }
-    
+
     public void SortInitiativeHud()
     {
         if (_characterIconsList.Count < 1)
@@ -400,7 +544,6 @@ public class BattleHUD : MonoBehaviour
     public void InventorySwapButton()
     {
         _consumablesInventory.SetActive(!_consumablesInventory.gameObject.activeSelf);
-        
     }
 }
 

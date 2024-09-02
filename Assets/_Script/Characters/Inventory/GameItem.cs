@@ -12,8 +12,18 @@
         public string ItemDescription { get; set; }
         public bool isEquippable { get; set; }
         
-        public void UseItem(ICharacter source, ICharacter target)
+        public virtual void UseItem(ICharacter source, ICharacter target)
         {
-                Debug.Log("Gameitem");
+            Debug.Log("Gameitem has been used");
+        }
+
+        public virtual void EquipItem(ICharacter source)
+        {
+        
+        }
+
+        public virtual void OnAttackModifier(ICharacter source)
+        {
+            
         }
     }

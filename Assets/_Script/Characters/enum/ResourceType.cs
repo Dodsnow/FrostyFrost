@@ -3,7 +3,7 @@
     {
         Gold,
         Wood,
-        Stone,
-        Iron,
+        Hide,
+        Metal,
         Herbs,
     }

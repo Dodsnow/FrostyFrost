@@ -7,8 +7,10 @@ using UnityEngine;
     public class TestArmor : GameItem
     {
         
-        public void EquipItem(ICharacter source)
+        public override void EquipItem(ICharacter source)
         {
             source.MaxHealth += 5;
+            source.CurrentHealth += 5;
+            Debug.LogWarning("Equip armor has been executed");
         }
     }
