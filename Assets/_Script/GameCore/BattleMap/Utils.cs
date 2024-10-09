@@ -3,6 +3,7 @@
     using System.IO;
     using System.Runtime.Serialization;
     using System.Runtime.Serialization.Formatters.Binary;
+    using _Script.ConditionalEffects;
     using _Script.ConditionalEffects.Enum;
     using _Script.PlayableCharacters;
     using UnityEngine;
@@ -53,11 +54,24 @@
             tempCardAction.cardActionSequencesList = new List<CardActionSequence>();
             for (int x = 0; x < cardAction.cardActionSequencesList.Count; x++)
             {
-                CardActionSequence tempCardActionSequence = new CardActionSequence(cardAction.cardActionSequencesList[x].CharacterActionType, cardAction.cardActionSequencesList[x].ActionRange, cardAction.cardActionSequencesList[x].ActionValue, cardAction.cardActionSequencesList[x].AnimProp);
+                CardActionSequence tempCardActionSequence = new CardActionSequence(cardAction.cardActionSequencesList[x].CharacterActionType, cardAction.cardActionSequencesList[x].ActionRange,cardAction.cardActionSequencesList[x].NumberOfTargets ,cardAction.cardActionSequencesList[x].ActionValue, cardAction.cardActionSequencesList[x].AnimProp);
                 tempCardAction.cardActionSequencesList.Add(tempCardActionSequence);
             }
 
             return tempCardAction;
+        }
+        
+        public bool HasCondition(ICharacter character, ApplicableConditions condition)
+        {
+            foreach (CharCondition tempCondition in character.TotalConditionList)
+            {
+                if (tempCondition.ApplicableCondition == condition)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
     

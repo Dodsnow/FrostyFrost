@@ -4,4 +4,5 @@
        Discard,
        Lost,
        Shuffle,
+       ShuffleLost,
     }

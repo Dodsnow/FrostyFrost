@@ -5,7 +5,7 @@
 
     public class TestAxe : GameItem
     {
-        public void OnAttackModifier(ICharacter source)
+        public override void OnAttackModifier(ICharacter source)
         {
             if(UtilsReference.utils.NumberOfEnemiesUnderCondition(source.currentHexPosition.hexPosition, 1, EntityControllerType.AI, ApplicableConditions.Bleed) > 1)
             {

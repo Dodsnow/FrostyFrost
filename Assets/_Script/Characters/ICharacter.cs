@@ -28,6 +28,11 @@ namespace _Script.PlayableCharacters
         bool isDead { get; set; }
         int Level { get; set; }
         GameObject classCardPrefab { get; set; }
+        List<CharacterCard> CharacterGlobalDeck { get; set; }
+        List<CharacterCard> HandDeck { get; set; }
+        List<CharacterCard> DiscardDeck { get; set; }
+        List<CharacterCard> LostDeck { get; set; }
+        List<CharacterCard> ActiveDeck { get; set; }
 
         EntityControllerType entityControllerType { get; set; }
 
@@ -51,6 +56,13 @@ namespace _Script.PlayableCharacters
             if (CurrentHealth > MaxHealth && !overHeal)
             {
                 CurrentHealth = MaxHealth;
+            }
+            else if (CurrentHealth <= 0)
+            {
+                CurrentHealth = 0;
+                isDead = true;
+                CharacterDeath();
+                return;
             }
 
             slider.value = CurrentHealth;

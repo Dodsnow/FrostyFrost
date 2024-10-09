@@ -19,6 +19,7 @@ namespace _Script.ConditionalEffects
         public const string Pierce = "@Pierce#";
         public const string Shattered = "@Shattered#";
         public const string Recovery = "@Recovery#";
+        public const string Immortal = "@Immortal#";
         public static List<string> ConditionTagList;
         
         static  ConditionTag()
@@ -39,7 +40,8 @@ namespace _Script.ConditionalEffects
                 "Retaliate",
                 "Pierce",
                 "Shattered",
-                "Recovery"
+                "Recovery",
+                "Immortal"
             };
         }
         

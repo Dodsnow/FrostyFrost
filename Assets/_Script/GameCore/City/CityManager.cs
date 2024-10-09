@@ -15,6 +15,7 @@ namespace _Script.GameCore.City
         [SerializeField] private TextMeshProUGUI _woodText;
         [SerializeField] private TextMeshProUGUI _hideText;
         [SerializeField] private TextMeshProUGUI _metalText;
+        
 
         private void Awake()
         {
@@ -39,5 +40,7 @@ namespace _Script.GameCore.City
             }
             _resourceUI[resourceType].GetComponent<TextMeshProUGUI>().text = _resources[resourceType].ToString();
         }
+
+       
     }
 }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
+using _Script.Characters.CharactersCards.Enum;
 using _Script.ConditionalEffects;
 using _Script.ConditionalEffects.Enum;
 using _Script.PlayableCharacters;
@@ -49,6 +50,8 @@ public class BattleHUD : MonoBehaviour
     [SerializeField] private Image _characterCardCanvas;
     [SerializeField] private GameObject _consumablesInventory;
     [SerializeField] private CharacterConditionsDB _characterConditionsDB;
+    private ICharacter characterPortraitData;
+    private ICharacter aiCharacterPortraitData;
     // [SerializeField] private SelectionManager _selectionManager;
 
 
@@ -67,53 +70,100 @@ public class BattleHUD : MonoBehaviour
     //
     //     displayCards.Add(card);
     // }
-    public void DisplaySelectedCards(ICharacter character)
+    // public void DisplaySelectedCards(ICharacter character)
+    // {
+    //     for (int i = 0; i < character.SelectedCards.Count; i++)
+    //     {
+    //         // GameObject card = CreateCardVisual(CardClassPrefab[character.classType],
+    //         //     new Vector3(0, 3.25f, 10) + new Vector3(3.5f * i, 0, 0), character.SelectedCards[i]);
+    //         GameObject card = CreateCardVisual(CardClassPrefab[character.classType],
+    //             _characterCardCanvas.transform.position + new Vector3(240 * i, 0, 0),
+    //             character.SelectedCards[i]);
+    //
+    //         CardDictionary.Add(card, character.SelectedCards[i]);
+    //         CardActionDictionary.Add(character.SelectedCards[i].TopCardAction, character.SelectedCards[i]);
+    //
+    //         if (character.SelectedCards[i].BottomCardAction != null)
+    //         {
+    //             CardActionDictionary.Add(character.SelectedCards[i].BottomCardAction, character.SelectedCards[i]);
+    //         }
+    //
+    //         displayCards.Add(card);
+    //     }
+    // }
+
+    public void DisplayCards(ICharacter character, DeckType deckType)
     {
-        for (int i = 0; i < character.SelectedCards.Count; i++)
+        
+        List<CharacterCard> cards = new ();
+        switch (deckType)
         {
-            // GameObject card = CreateCardVisual(CardClassPrefab[character.classType],
-            //     new Vector3(0, 3.25f, 10) + new Vector3(3.5f * i, 0, 0), character.SelectedCards[i]);
+            case DeckType.Hand:
+                cards = character.HandDeck;
+                break;
+            case DeckType.Discard:
+                cards = character.DiscardDeck;
+                break;
+            case DeckType.Lost:
+                cards = character.LostDeck;
+                break;
+            case DeckType.Active:
+                cards = character.ActiveDeck;
+                break;
+            case DeckType.Character:
+                cards = character.CharacterGlobalDeck;
+                break;
+            case DeckType.Selected:
+                cards = character.SelectedCards;
+                break;
+        }
+        
+        if (cards.Count <= 0)
+        {
+            Debug.LogWarning("Player is out of cards!");
+            return;
+        }
+        for (int i = 0; i < cards.Count; i++)
+        {
+            
             GameObject card = CreateCardVisual(CardClassPrefab[character.classType],
                 _characterCardCanvas.transform.position + new Vector3(240 * i, 0, 0),
-                character.SelectedCards[i]);
+                cards[i]);
 
-            CardDictionary.Add(card, character.SelectedCards[i]);
-            CardActionDictionary.Add(character.SelectedCards[i].TopCardAction, character.SelectedCards[i]);
+            CardDictionary.Add(card, cards[i]);
+            CardActionDictionary.Add(cards[i].TopCardAction, cards[i]);
 
-            if (character.SelectedCards[i].BottomCardAction != null)
+            if (cards[i].BottomCardAction != null)
             {
-                CardActionDictionary.Add(character.SelectedCards[i].BottomCardAction, character.SelectedCards[i]);
+                CardActionDictionary.Add(cards[i].BottomCardAction, cards[i]);
             }
 
             displayCards.Add(card);
         }
     }
-
-
-    public void DisplayCharacterHandDeck(PlayerCharacter playerCharacter)
-    {
-        if (playerCharacter.handDeck.Count <= 0)
-        {
-            Debug.LogWarning("Player is out of cards!");
-        }
-
-        for (int i = 0; i < playerCharacter.handDeck.Count; i++)
-        {
-            if (playerCharacter.handDeck[i] != null)
-            {
-                // GameObject card = CreateCardVisual(CardClassPrefab[playerCharacter.classType],
-                //     new Vector3(0, 3.25f, 10) + new Vector3(3.5f * i, 0, 0), playerCharacter.handDeck[i]);
-                GameObject card = CreateCardVisual(CardClassPrefab[playerCharacter.classType],
-                    _characterCardCanvas.transform.position + new Vector3(240 * i, 0, 0), playerCharacter.handDeck[i]);
-                CardDictionary.Add(card, playerCharacter.handDeck[i]);
-                displayCards.Add(card);
-            }
-            else
-            {
-                Debug.LogWarning("Player is out of cards!");
-            }
-        }
-    }
+    // public void DisplayCharacterHandDeck(PlayerCharacter playerCharacter)
+    // {
+    //     if (playerCharacter.HandDeck.Count <= 0)
+    //     {
+    //         Debug.LogWarning("Player is out of cards!");
+    //     }
+    //
+    //     for (int i = 0; i < playerCharacter.HandDeck.Count; i++)
+    //     {
+    //         if (playerCharacter.HandDeck[i] != null)
+    //         {
+    //             
+    //             GameObject card = CreateCardVisual(CardClassPrefab[playerCharacter.classType],
+    //                 _characterCardCanvas.transform.position + new Vector3(240 * i, 0, 0), playerCharacter.HandDeck[i]);
+    //             CardDictionary.Add(card, playerCharacter.HandDeck[i]);
+    //             displayCards.Add(card);
+    //         }
+    //         else
+    //         {
+    //             Debug.LogWarning("Player is out of cards!");
+    //         }
+    //     }
+    // }
 
     private GameObject CreateCardVisual(GameObject cardPrefab, Vector3 position, CharacterCard card)
     {
@@ -129,39 +179,42 @@ public class BattleHUD : MonoBehaviour
         int startIndex = 0;
         int endIndex = description.Length;
         GameObject[] textBlocks = new GameObject[20];
+        float[] textBlocksSize = new float[20];
         int textBlockIndex = 0;
         Debug.Log("Discription Length " + card.TopCardAction.Discription.Length);
+        float character_string_limit = 14f;
+
 
         for (int i = 0; i < card.TopCardAction.Discription.Length; i++)
         {
             if (description.Substring(i, 1) == "@")
             {
+
                 endIndex = i;
+
                 if (description.Substring(startIndex, endIndex - startIndex) != "" ||
                     endIndex > startIndex)
                 {
                     textBlockIndex++;
                     isTextChanged = true;
-                    TextMeshProUGUI descriptionTextBlock =
-                        Instantiate(cardUI.transform.Find("TopAction").GetComponent<TextMeshProUGUI>());
+                    TextMeshProUGUI descriptionTextBlock = Instantiate(cardUI.transform.Find("TopAction").GetComponent<TextMeshProUGUI>());
                     textBlocks[textBlockIndex] = descriptionTextBlock.gameObject;
+                    string subtext = description.Substring(startIndex, endIndex - startIndex);
 
-                    if (textBlockIndex == 1)
-                    {
-                        descriptionTextBlock.transform.SetParent(cardUI.transform.Find("TopAction").transform);
-                        descriptionTextBlock.GetComponent<RectTransform>().anchoredPosition =
-                            new Vector2(-1, 1);
-                    }
-                    else
-                    {
-                        descriptionTextBlock.transform.SetParent(textBlocks[textBlockIndex - 1].transform);
-                        ;
-                        descriptionTextBlock.GetComponent<RectTransform>().anchoredPosition =
-                            new Vector2(-1, 0);
-                    }
+                        if (textBlockIndex == 1)
+                        {
+                            descriptionTextBlock.transform.SetParent(cardUI.transform.Find("TopAction").transform);
+                            textBlocksSize[textBlockIndex] = -5f * (1f-((subtext.Length-1) / character_string_limit));
+                            descriptionTextBlock.GetComponent<RectTransform>().anchoredPosition = new Vector2(textBlocksSize[textBlockIndex], 0);
+                        }
+                        else
+                        {
+                            descriptionTextBlock.transform.SetParent(textBlocks[textBlockIndex - 1].transform);
+                            descriptionTextBlock.GetComponent<RectTransform>().anchoredPosition = new Vector2(-1, 0);
+                        }
 
                     descriptionTextBlock.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
-                    descriptionTextBlock.text = description.Substring(startIndex, endIndex - startIndex);
+                    descriptionTextBlock.text = subtext;
                     newDescription += description.Substring(startIndex, endIndex - startIndex);
                     Debug.Log("String Block " + textBlockIndex + " <" +
                               description.Substring(startIndex, endIndex - startIndex) + "> ");
@@ -171,59 +224,59 @@ public class BattleHUD : MonoBehaviour
                 {
                     if (description.Substring(x, 1) == "#")
                     {
+
                         Debug.Log(description.Substring(i + 1, x - (i + 1)));
+
                         if (ConditionTag.HasConditionTag(description.Substring(i + 1, x - (i + 1))))
                         {
-                            Sprite conditionIcon =
-                                GetConditionIconPrefab(description.Substring(i + 1, x - (i + 1)));
+                            Sprite conditionIcon = GetConditionIconPrefab(description.Substring(i + 1, x - (i + 1)));
+
                             if (conditionIcon != null)
                             {
                                 textBlockIndex++;
-                                GameObject conditionIconPrefab =
-                                    Instantiate(cardUI.transform.Find("ConditionIcon").gameObject);
+                                GameObject conditionIconPrefab = Instantiate(cardUI.transform.Find("ConditionIcon").gameObject);
                                 textBlocks[textBlockIndex] = conditionIconPrefab;
+                                textBlocksSize[textBlockIndex] = -4f;
                                 conditionIconPrefab.GetComponent<Image>().sprite = conditionIcon;
                                 conditionIconPrefab.SetActive(true);
-                                if (textBlockIndex == 1)
-                                {
-                                    conditionIconPrefab.transform.SetParent(
-                                        cardUI.transform.Find("TopAction").transform);
-                                    conditionIconPrefab.GetComponent<RectTransform>().anchoredPosition =
-                                        new Vector2(2, 0);
-                                    conditionIconPrefab.GetComponent<RectTransform>().localScale = new Vector2(1, 1);
 
-                                }
-                                else
-                                {
-                                    conditionIconPrefab.transform.SetParent(textBlocks[textBlockIndex - 1].transform);
-                                    conditionIconPrefab.GetComponent<RectTransform>().anchoredPosition =
-                                        new Vector2(2, 0);
-                                    
-                                }
+                                    if (textBlockIndex == 1)
+                                    {
+                                        conditionIconPrefab.transform.SetParent(cardUI.transform.Find("TopAction").transform);
+                                        conditionIconPrefab.GetComponent<RectTransform>().anchoredPosition = new Vector2(2, 0);
+                                        conditionIconPrefab.GetComponent<RectTransform>().localScale = new Vector2(1, 1);
+                                    }
+                                    else
+                                    {
+                                        conditionIconPrefab.transform.SetParent(textBlocks[textBlockIndex - 1].transform);
+                                        conditionIconPrefab.GetComponent<RectTransform>().anchoredPosition = new Vector2(Math.Abs(-5f - textBlocksSize[textBlockIndex - 1] - 2f), 0);
+                                    }
 
-                                if (textBlocks[textBlockIndex - 1].GetComponent<RectTransform>().localScale.x > 1)
-                                {
-                                    conditionIconPrefab.GetComponent<RectTransform>().localScale = new Vector2(4, 4);
-                                }
+                                    if (textBlocks[textBlockIndex - 1].GetComponent<RectTransform>().localScale.x > 1)
+                                    {
+                                        conditionIconPrefab.GetComponent<RectTransform>().localScale = new Vector2(4, 4);
+                                    }
 
-                                else
-                                {
-                                    conditionIconPrefab.GetComponent<RectTransform>().localScale = new Vector2(1, 1);
-                                }
+                                    else
+                                    {
+                                        conditionIconPrefab.GetComponent<RectTransform>().localScale = new Vector2(1, 1);
+                                    }
 
                                 conditionIconPrefab.GetComponent<RectTransform>().sizeDelta = new Vector2(1, 1);
-                                if (textBlockIndex > 1 && conditionIconPrefab.transform.GetComponent<RectTransform>().localScale.x > 1f)
-                                {
-                                    Debug.Log("Scale is if " + conditionIconPrefab.GetComponent<RectTransform>().localScale);
-                                    conditionIconPrefab.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
-                                }
-                                else
-                                {
-                                    Debug.Log("Scale is esle " + conditionIconPrefab.GetComponent<RectTransform>().localScale);
+                                    
+                                    if (textBlockIndex > 1 && conditionIconPrefab.transform.GetComponent<RectTransform>().localScale.x > 1f)
+                                    {
+                                        Debug.Log("Scale is if " + conditionIconPrefab.GetComponent<RectTransform>().localScale);
+                                        conditionIconPrefab.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
+                                    }
+                                    else
+                                    {
+                                        Debug.Log("Scale is esle " + conditionIconPrefab.GetComponent<RectTransform>().localScale);
 
-                                    conditionIconPrefab.GetComponent<RectTransform>().localScale = new Vector3(4, 4, 4);
+                                        conditionIconPrefab.GetComponent<RectTransform>().localScale = new Vector3(4, 4, 4);
 
-                                }
+                                    }
+
                             }
                         }
 
@@ -267,21 +320,7 @@ public class BattleHUD : MonoBehaviour
 
     private Sprite GetConditionIconPrefab(string conditionID)
     {
-        // switch (conditionID)
-        // {
-        //     case ConditionTag.Bleed:
-        //         conditionID = "Bleed";
-        //         break;
-        //     case ConditionTag.Stun:
-        //         conditionID = "Stun";
-        //         break;
-        //     case ConditionTag.Poison:
-        //         conditionID = "Poison";
-        //         break;
-        //     case ConditionTag.Weaken:
-        //         conditionID = "Weaken";
-        //         break;
-        // }
+        
         foreach (var condition in _characterConditionsDB.characterConditions)
         {
             if (condition.ConditionID == conditionID)
@@ -374,7 +413,8 @@ public class BattleHUD : MonoBehaviour
     {
         CardReferences cardReferences = FindObjectOfType<CardReferences>();
         CardClassPrefab[ClassType.Berserker] = cardReferences._cardPrefabs[0];
-        CardClassPrefab[ClassType.AISkeleton] = cardReferences._cardPrefabs[1];
+        CardClassPrefab[ClassType.BloodOmen] = cardReferences._cardPrefabs[1];
+        CardClassPrefab[ClassType.AISkeleton] = cardReferences._cardPrefabs[2];
     }
 
 
@@ -519,6 +559,7 @@ public class BattleHUD : MonoBehaviour
         _characterName.text = character.CharacterName;
         _characterHealth.text = character.CurrentHealth + "/" + character.MaxHealth;
         _characterLevel.text = "Level " + character.Level;
+        characterPortraitData = character;
     }
 
     public void ChangeEnemyPortrait(AiCharacter character)
@@ -527,11 +568,13 @@ public class BattleHUD : MonoBehaviour
         _enemyName.text = character.CharacterName;
         _enemyHealth.text = character.CurrentHealth + "/" + character.MaxHealth;
         _enemyLevel.text = "Level " + character.Level;
+        aiCharacterPortraitData = character;
     }
 
+    
     public void UpdatePortraitHp(ICharacter character)
     {
-        if (character is PlayerCharacter)
+        if (character.entityControllerType == EntityControllerType.Player)
         {
             _characterHealth.text = character.CurrentHealth + "/" + character.MaxHealth;
         }

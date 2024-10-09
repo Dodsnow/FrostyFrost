@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using System.Collections;
 using System.Linq;
+using _Script.Characters.CharactersCards.BloodOmenCards;
+using _Script.Characters.CharactersCards.Enum;
 using _Script.ConditionalEffects.Enum;
 using UnityEngine;
 
@@ -17,13 +19,12 @@ public class AiBehavior : MonoBehaviour
         CardActionSequence currentSequence;
         if (aiCharacter.TurnStartConditionsList.Exists(x => x.ApplicableCondition == ApplicableConditions.Stun))
         {
-            
             ResolveAiCard(aiCharacter);
             yield return null;
         }
         else
         {
-            for (int i = 0; i < aiCharacter.SelectedCards[0].TopCardAction.cardActionSequencesList.Count; i++)
+            for (int i = 0; i < aiCharacter.SelectedCards[i].TopCardAction.cardActionSequencesList.Count; i++)
             {
                 Debug.Log("Ai action phase - start sequence " + i);
                 yield return new WaitForSeconds(1.0f);
@@ -44,14 +45,15 @@ public class AiBehavior : MonoBehaviour
                         Debug.Log("Ai action phase - have to move");
                         int movementPoints = currentSequence.ActionRange;
                         List<Hexagon> aiCharacterPath = AstarPathfinding.FindPath(aiCharacter.currentHexPosition,
-                            _spawnManager.playerCharacters[0].currentHexPosition);
+                            _spawnManager.playerCharacters[0].currentHexPosition, currentSequence.CharacterActionType);
 
                         if (movementPoints > aiCharacterPath.Count)
                         {
                             movementPoints = aiCharacterPath.Count;
                         }
 
-                        _cardActionManager.Move(aiCharacter, aiCharacterPath[movementPoints - 1]);
+                        Debug.Log("Ai has: " + (movementPoints - 1) + " movement points");
+                        _cardActionManager.Move(aiCharacter, aiCharacterPath[movementPoints - 1], currentSequence.CharacterActionType);
                     }
                     else
                     {
@@ -68,6 +70,26 @@ public class AiBehavior : MonoBehaviour
                         currentSequence.ActionRange)
                     {
                         Debug.Log("Ai action phase - have to attack");
+                        if (_spawnManager.playerCharacters[0].ActiveDeck.Exists(x => x == typeof(FirstOmenCard)))
+                        {
+                            FirstOmenCard firstOmenCard = (FirstOmenCard)_spawnManager.playerCharacters[0].ActiveDeck
+                                .Find(x => x == typeof(FirstOmenCard));
+                            if (_spawnManager.playerCharacters[0].TotalConditionList.Exists(x =>
+                                    x.ApplicableCondition == ApplicableConditions.Bleed))
+                            {
+                                currentSequence.ActionValue = 0;
+                            }
+                        }
+                        else if (_spawnManager.playerCharacters[0].ActiveDeck.Exists(x => x == typeof(ThirdOmenCard)))
+                        {
+                            ThirdOmenCard thirdOmenCard = (ThirdOmenCard)_spawnManager.playerCharacters[0].ActiveDeck
+                                .Find(x => x == typeof(ThirdOmenCard));
+                            if (thirdOmenCard.isImmortal)
+                            {
+                                currentSequence.ActionValue = 0;
+                            }
+                        }
+
                         _cardActionManager.Attack(aiCharacter, _spawnManager.playerCharacters[0],
                             currentSequence.ActionValue, currentSequence.AnimProp, currentSequence.Conditions);
                     }
@@ -82,11 +104,9 @@ public class AiBehavior : MonoBehaviour
                 Debug.Log("Ai action phase - card action end");
                 _cardActionManager.cardActionEnd = false;
                 Debug.Log("Ai action phase - " + aiCharacter.SelectedCards[0].cardName + " Monster card is removed");
-
-
             }
-            ResolveAiCard(aiCharacter);
 
+            ResolveAiCard(aiCharacter);
         }
 
 
@@ -99,17 +119,31 @@ public class AiBehavior : MonoBehaviour
         Debug.Log("Ai cards Resolved +++++++++++++++++++++++++++++++");
         if (aiCharacter.SelectedCards[0].TopCardAction.DiscardActionType == CardDiscardActionType.Shuffle)
         {
+            aiCharacter.DiscardDeck.Add(aiCharacter.SelectedCards[0]);
             Debug.Log("Ai action phase - Monster Deck is shuffled");
-            aiCharacter.characterCards.AddRange(aiCharacter.discardDeck);
-            aiCharacter.discardDeck.Clear();
+            if (aiCharacter.DiscardDeck.Count > 1)
+            {
+                aiCharacter.CharacterGlobalDeck.AddRange(aiCharacter.DiscardDeck);
+                Debug.Log("Ai character deck cards number: " + aiCharacter.CharacterGlobalDeck.Count);
+            }
+            else if (aiCharacter.DiscardDeck.Count == 1)
+            {
+                aiCharacter.CharacterGlobalDeck.Add(aiCharacter.DiscardDeck[0]);
+                Debug.Log("Ai character deck cards number: " + aiCharacter.CharacterGlobalDeck.Count);
+            }
+
+            aiCharacter.DiscardDeck.Clear();
+            Debug.Log("Ai discard deck cards number: " + aiCharacter.DiscardDeck.Count);
         }
         else if (aiCharacter.SelectedCards[0].TopCardAction.DiscardActionType == CardDiscardActionType.Discard)
         {
-            aiCharacter.discardDeck.Add(aiCharacter.SelectedCards[0]);
+            aiCharacter.DiscardDeck.Add(aiCharacter.SelectedCards[0]);
+            Debug.Log("Ai discard deck cards number: " + aiCharacter.DiscardDeck.Count);
             Debug.Log("Ai action phase - total selected cards number " + aiCharacter.SelectedCards.Count);
-            Debug.Log("Ai action phase - total discard cards number " + aiCharacter.discardDeck.Count);
+            Debug.Log("Ai action phase - total discard cards number " + aiCharacter.DiscardDeck.Count);
         }
 
         aiCharacter.SelectedCards.Remove(aiCharacter.SelectedCards[0]);
+        Debug.Log("Ai character Selected deck cards number: " + aiCharacter.SelectedCards.Count);
     }
 }

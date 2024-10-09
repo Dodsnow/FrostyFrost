@@ -24,7 +24,7 @@ public class SpawnManager : MonoBehaviour
         PlayerCharacter player = character.GetComponent<PlayerCharacter>();
         player.currentHexPosition = hex;
         player.playableEntity = character;
-        player.classType = ClassType.Berserker;
+        player.classType = playerCharacterTemplate.classType;
         player.SelectedCards = new List<CharacterCard>();
         player.entityControllerType = EntityControllerType.Player;
         player.CharacterName = playerCharacterTemplate.characterName;
@@ -38,6 +38,7 @@ public class SpawnManager : MonoBehaviour
         player.HpSlider.GetComponentInChildren<Canvas>().worldCamera = Camera.main;
         player.handSize = playerCharacterTemplate.handSize;
         player.CharacterIconSprite = playerCharacterTemplate.characterIcon;
+        player.HandDeck = playerCharacterTemplate.characterCards[playerCharacterTemplate.classType];
         // player.classCardPrefab = playerCharacterTemplate.characterCardPrefab;
         // IItem tempItem = PlayerInventory.Inventory[0];
         Debug.Log("Player inventory number of Items :" + PlayerInventory.Inventory.Count);
@@ -57,6 +58,7 @@ public class SpawnManager : MonoBehaviour
         // battleHud.ShowEquippedItems();
         playerCharacters.Add(player);
         hex.isOccupied = true;
+        hex.characterOnHex = player;
 
 
     }
@@ -81,10 +83,12 @@ public class SpawnManager : MonoBehaviour
         ai.HpSlider.GetComponentInChildren<Canvas>().GetComponentInChildren<Slider>().value = ai.CurrentHealth;
         ai.HpSlider.GetComponentInChildren<Canvas>().renderMode = RenderMode.WorldSpace;
         ai.HpSlider.GetComponentInChildren<Canvas>().worldCamera = Camera.main;
-        ai.characterCards = AiCardManager.aiCardsDictionary[ai.classType];
+        ai.CharacterGlobalDeck = AiCardManager.aiCardsDictionary[ai.classType];
         aiCharacters.Add(ai);
         ai.CharacterIconSprite = aiCharacterTemplate.characterIcon;
         hex.isOccupied = true;
+        hex.characterOnHex = ai;
+
 
 
 

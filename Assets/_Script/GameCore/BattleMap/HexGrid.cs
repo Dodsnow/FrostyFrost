@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using _Script.PlayableCharacters;
 using Unity.VisualScripting;
 using UnityEngine;
 using Random = System.Random;
@@ -13,15 +14,15 @@ public class HexGrid : MonoBehaviour
     private Vector3 hexStartPosition;
     public GameObject obstaclePrefab;
 
-    
-
-    public void HexMapInit()
+    private void Awake()
     {
-        CreateGrid(new Vector2Int(10, 10));
-        AstarPathfinding.HexGrid = this;
+        AstarPathfinding.HexGrid = this; // Check this line
+        HexGridReference.HexGrid = this;
     }
 
-    void CreateGrid(Vector2Int gridSize)
+    
+
+   public void CreateGrid(Vector2Int gridSize)
     {
         int row = 0;
         int init_q = 0 - gridSize.y / 2;
@@ -38,14 +39,16 @@ public class HexGrid : MonoBehaviour
                 {
                     endPosition.x += 1;
                 }
+
                 Random random = new Random();
-                GameObject tile = Instantiate(hexPrefab, new Vector3((hexStartPosition.x + endPosition.x + row), 0, hexStartPosition.y + (endPosition.y * 1.73f)), Quaternion.identity);
+                GameObject tile = Instantiate(hexPrefab,
+                    new Vector3((hexStartPosition.x + endPosition.x + row), 0,
+                        hexStartPosition.y + (endPosition.y * 1.73f)), Quaternion.identity);
                 Hexagon hex = tile.GetComponent<Hexagon>();
                 if (random.Next(0, 100) <= 10)
                 {
                     hex._terrainType = TerrainType.Obstacle;
                     hex._tileObject = Instantiate(obstaclePrefab, tile.transform.Find("Props"));
-                    
                 }
                 else
                 {
@@ -91,16 +94,6 @@ public class HexGrid : MonoBehaviour
         return currentSelectedHexes;
     }
 
-    enum HexDirectionType
-    {
-        UP,
-        DOWN,
-        UPLEFT,
-        UPRIGHT,
-        DOWNLEFT,
-        DOWNRIGHT
-    }
-
     public static class HexDirection
     {
         public static List<Vector3Int> directionList = new List<Vector3Int>()
@@ -124,7 +117,27 @@ public class HexGrid : MonoBehaviour
                 hexes.Add(hex.GetComponent<Hexagon>());
             }
         }
-        
+
         return hexes;
     }
+
+    public List<ICharacter> GetEntityOnHex(EntityControllerType entityType, List<Hexagon> hexes)
+    {
+        
+        List<ICharacter> entityList = new List<ICharacter>();
+        foreach (var hex in hexes)
+        {
+            if (hex.characterOnHex != null &&  (hex.characterOnHex.entityControllerType == entityType || entityType == EntityControllerType.Universal))
+            {
+                entityList.Add(hex.characterOnHex);
+            }
+        }
+
+        return entityList;
+    }
+}
+
+public static class HexGridReference
+{
+    public static HexGrid HexGrid;
 }

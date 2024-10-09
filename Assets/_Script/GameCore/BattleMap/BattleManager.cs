@@ -3,9 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Linq;
+using _Script.Characters.CharactersCards.BloodOmenCards;
+using _Script.Characters.CharactersCards.Enum;
 using _Script.ConditionalEffects;
 using _Script.ConditionalEffects.Enum;
+using _Script.GameCore;
 using _Script.PlayableCharacters;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.TextCore.Text;
@@ -29,33 +33,78 @@ public class BattleManager : MonoBehaviour
     public int currentActionSequenceIndex = 0;
     public CardActionManager cardActionManager;
     [SerializeField] private GameObject _cameraEye;
+    public PlayerCharacterDB playerCharacterDB;
     
 
 
     public void Start()
     {
         BattleManagerReference.BattleManager = this;
-        grid.HexMapInit();
-        StartBattle();
+        foreach (var character in playerCharacterDB.playerCharacters)
+        {
+            switch (character.classType)
+            {
+                case ClassType.Berserker:
+                    List<CharacterCard> berserkerCards = new List<CharacterCard>
+                    {
+                        new FirstBerserkerCard(),
+                        new SecondBerserkerCard(),
+                        new ThirdBerserkerCard(),
+                        new FourthBerserkerCard(),
+                        new FifthBerserkerCard(),
+                        new SixthBerserkerCard()
+                    };
+                    character.characterCards.Add(ClassType.Berserker, berserkerCards);
+                    break;
+                case ClassType.BloodOmen:
+                    List<CharacterCard> bloodOmenCards = new List<CharacterCard>
+                    {
+                        new FirstOmenCard(),
+                        new SecondOmenCard(),
+                        new ThirdOmenCard(),
+                        new FourthOmenCard(),
+                        new FifthOmenCard(),
+                        new SixthOmenCard(),
+                        new SeventhOmenCard(),
+                        new EigthOmenCard(),
+                        new NinthOmenCard()
+                    };
+                    character.characterCards.Add(ClassType.BloodOmen, bloodOmenCards);
+                    break;
+            }
+        }
+       
+       
     }
 
     public void StartBattle()
     {
+        GameState gameState = new();
+        gameState.UpdateGameState();
         state = BattleState.BattleMapSetup;
         roundNumber = 1;
         Hexagon hexagon;
         Random random = new Random();
+        SaveSystem.SaveGame(gameState);
+        SaveSystem.LoadGame(gameState);
+
         List<GameObject> tempHexagon = grid.HexagonTilesetMap.Values.ToList();
         do
         {
-            hexagon = tempHexagon[random.Next(0, tempHexagon.Count)].GetComponent<Hexagon>();
-            if (hexagon._terrainType == TerrainType.Normal && hexagon.isOccupied == false)
+            Debug.Log(playerCharacterDB.playerCharacters.Count);
+            for (int i = 0; i < playerCharacterDB.playerCharacters.Count; i++)
             {
-                spawnManager.SpawnPlayerCharacter(0, hexagon);
-                _cameraEye.transform.position = spawnManager.playerCharacters[0].transform.position;
-                break;
+                hexagon = tempHexagon[random.Next(0, tempHexagon.Count)].GetComponent<Hexagon>();
+                if (hexagon._terrainType == TerrainType.Normal && hexagon.isOccupied == false)
+                {
+                    spawnManager.SpawnPlayerCharacter(i ,hexagon);
+
+                }
+
             }
-        } while (true);
+            
+
+        } while (spawnManager.playerCharacters.Count < playerCharacterDB.playerCharacters.Count);
 
         do
         {
@@ -83,12 +132,16 @@ public class BattleManager : MonoBehaviour
         state = BattleState.RoundStart;
         int currentCharacterIndex = 0;
 
+        for (int i = 0; i < spawnManager.playerCharacters.Count; i++)
+        {
+            spawnManager.playerCharacters[i].SelectedCards = new List<CharacterCard>();
+        }
         foreach (PlayerCharacter playerCharacter in spawnManager.playerCharacters)
         {
-            selectionManager.SelectCharacter(playerCharacter);
-            yield return new WaitUntil(() => _cardLocked);
-            Debug.Log("Round Start - Cards Locked");
-            _cardLocked = false;
+           selectionManager.SelectCharacter(playerCharacter);
+        yield return new WaitUntil(() => _cardLocked);
+        Debug.Log("Round Start - Cards Locked");
+        _cardLocked = false;
         }
 
         battleHUD.DisplayButton(true);
@@ -104,7 +157,7 @@ public class BattleManager : MonoBehaviour
             battleHUD.RemoveDisplayCards();
             characterTurnEnd = false;
             TriggerCharacterTurnConditions(characterInitiativeList[i]);
-            battleHUD.DisplaySelectedCards(characterInitiativeList[i]);
+            battleHUD.DisplayCards(characterInitiativeList[i], DeckType.Selected);
 
             if (characterInitiativeList[i].entityControllerType == EntityControllerType.Player)
             {
@@ -157,10 +210,10 @@ public class BattleManager : MonoBehaviour
 
         foreach (AiCharacter aiCharacter in spawnManager.aiCharacters)
         {
-            selectedCard = aiCharacter.characterCards[UnityEngine.Random.Range(0, aiCharacter.characterCards.Count)];
+            selectedCard = aiCharacter.CharacterGlobalDeck[UnityEngine.Random.Range(0, aiCharacter.CharacterGlobalDeck.Count)];
             aiCharacter.SelectedCards.Add(selectedCard);
-            aiCharacter.characterCards.Remove(selectedCard);
-            battleHUD.DisplaySelectedCards(aiCharacter);
+            aiCharacter.CharacterGlobalDeck.Remove(selectedCard);
+            battleHUD.DisplayCards(aiCharacter, DeckType.Selected);
             Debug.Log(aiCharacter.CharacterName + " has picked " + selectedCard.cardName);
         }
 
@@ -201,7 +254,7 @@ public class BattleManager : MonoBehaviour
 
     public void SkipPlayerTurn(PlayerCharacter playerCharacter)
     {
-        playerCharacter.discardDeck.AddRange(playerCharacter.SelectedCards);
+        playerCharacter.DiscardDeck.AddRange(playerCharacter.SelectedCards);
         playerCharacter.SelectedCards.Clear();
     }
     public void CardActionEnd()
@@ -228,25 +281,30 @@ public class BattleManager : MonoBehaviour
             switch (selectionManager.lastSelectedCardAction.DiscardActionType)
             {
                 case CardDiscardActionType.Active:
-                    selectionManager.lastSelectedCharacter.activeDeck.Add(selectionManager.lastSelectedCard);
-                    selectionManager.lastSelectedCharacter.handDeck.Remove(selectionManager.lastSelectedCard);
+                    selectionManager.lastSelectedCharacter.ActiveDeck.Add(selectionManager.lastSelectedCard);
+                    selectionManager.lastSelectedCharacter.HandDeck.Remove(selectionManager.lastSelectedCard);
                     Debug.Log("switch - active");
                     break;
                 case CardDiscardActionType.Discard:
-                    selectionManager.lastSelectedCharacter.discardDeck.Add(selectionManager.lastSelectedCard);
-                    selectionManager.lastSelectedCharacter.handDeck.Remove(selectionManager.lastSelectedCard);
+                    selectionManager.lastSelectedCharacter.DiscardDeck.Add(selectionManager.lastSelectedCard);
+                    selectionManager.lastSelectedCharacter.HandDeck.Remove(selectionManager.lastSelectedCard);
                     Debug.Log("switch - discard");
                     break;
                 case CardDiscardActionType.Lost:
-                    selectionManager.lastSelectedCharacter.lostDeck.Add(selectionManager.lastSelectedCard);
-                    selectionManager.lastSelectedCharacter.handDeck.Remove(selectionManager.lastSelectedCard);
+                    selectionManager.lastSelectedCharacter.LostDeck.Add(selectionManager.lastSelectedCard);
+                    selectionManager.lastSelectedCharacter.HandDeck.Remove(selectionManager.lastSelectedCard);
                     Debug.Log("switch - lost");
                     break;
                 case CardDiscardActionType.Shuffle:
-                    selectionManager.lastSelectedCharacter.handDeck.AddRange(selectionManager.lastSelectedCharacter
-                        .discardDeck);
-                    selectionManager.lastSelectedCharacter.discardDeck.Clear();
+                    selectionManager.lastSelectedCharacter.HandDeck.AddRange(selectionManager.lastSelectedCharacter
+                        .DiscardDeck);
+                    selectionManager.lastSelectedCharacter.DiscardDeck.Clear();
                     Debug.Log("switch - shuffle");
+                    break;
+                case CardDiscardActionType.ShuffleLost:
+                    selectionManager.lastSelectedCharacter.HandDeck.AddRange(selectionManager.lastSelectedCharacter.DiscardDeck);
+                    selectionManager.lastSelectedCharacter.LostDeck.Add(selectionManager.lastSelectedCard);
+                    selectionManager.lastSelectedCharacter.HandDeck.Remove(selectionManager.lastSelectedCard);
                     break;
             }
 
@@ -278,6 +336,8 @@ public class BattleManager : MonoBehaviour
             }
         }
     }
+    
+    
 
     private void TriggerCharacterTurnConditions(ICharacter character)
     {
@@ -340,6 +400,8 @@ public class BattleManager : MonoBehaviour
         character.RoundEndConditionsList.Clear();
         battleHUD.SortConditions(character);
     }
+
+ 
     
 }
 

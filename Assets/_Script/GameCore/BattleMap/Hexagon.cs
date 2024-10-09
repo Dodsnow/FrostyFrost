@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using _Script.PlayableCharacters;
 using UnityEngine;
 
 [SelectionBase]
@@ -12,6 +13,7 @@ public class Hexagon : MonoBehaviour
     public GameObject _tileObject;
     public TerrainType _terrainType;
     public bool isOccupied = false;
+    public ICharacter characterOnHex = null;
 
     
 

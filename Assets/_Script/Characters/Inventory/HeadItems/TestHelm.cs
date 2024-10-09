@@ -8,6 +8,6 @@
     {
         public override void UseItem(ICharacter source, ICharacter target)
         {
-            CardActionManagerReference.cardActionManager.ApplyCondition(target, ApplicableConditions.Shield);
+            CardActionManagerReference.cardActionManager.ApplyCondition(null ,target, ApplicableConditions.Shield);
         }
     }

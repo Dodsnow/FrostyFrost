@@ -1,6 +1,7 @@
 
     using System;
     using System.Collections.Generic;
+    using _Script.Characters.CharactersCards.Enum;
     using _Script.ConditionalEffects;
     using _Script.ConditionalEffects.Enum;
     using UnityEngine;
@@ -20,9 +21,9 @@
             cardName = "First Berserker Card";
             initiative = 20;
             TopCardAction = new CardAction(CardDiscardActionType.Discard, "Attack 3", this);
-            TopCardAction.AddActionSequence(CharacterActionType.Attack,1,3,"AttackChop", new List<ApplicableConditions>(){ApplicableConditions.Bleed});
+            TopCardAction.AddActionSequence(CharacterActionType.Attack,1,1,3,"AttackChop", new List<ApplicableConditions>(){ApplicableConditions.Bleed});
             BottomCardAction = new CardAction(CardDiscardActionType.Discard, "Move 10", this);
-            BottomCardAction.AddActionSequence(CharacterActionType.Move,10,0, "",null);
+            BottomCardAction.AddActionSequence(CharacterActionType.Move,10,1,0, "",null);
         }
         
         

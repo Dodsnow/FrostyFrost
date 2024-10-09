@@ -10,7 +10,6 @@ public class AiCharacter : MonoBehaviour, ICharacter
     public int MaxHealth { get; set; }
     public int CurrentHealth { get; set; }
     public MonsterType monsterType { get; set; }
-    public List<CharacterCard> SelectedCards { get; set; }
     public Slider slider { get; set; }
     public Hexagon currentHexPosition { get; set; }
     public GameObject HpSlider { get; set; }
@@ -25,13 +24,17 @@ public class AiCharacter : MonoBehaviour, ICharacter
     public bool isDead { get; set; }
     public int Level { get; set; }
     public GameObject classCardPrefab { get; set; }
+
+    public List<CharacterCard> CharacterGlobalDeck { get; set; } = new List<CharacterCard>();
+    public List<CharacterCard> HandDeck { get; set; } = new List<CharacterCard>();
+    public List<CharacterCard> DiscardDeck { get; set; } = new List<CharacterCard>();
+    public List<CharacterCard> LostDeck { get; set; }
+    public List<CharacterCard> SelectedCards { get; set; }
+    public List<CharacterCard> ActiveDeck { get; set; } = new List<CharacterCard>();
     public EntityControllerType entityControllerType { get; set; }
     public ClassType classType { get; set; }
     public GameObject playableEntity { get; set; }
-    
 
-    public List<CharacterCard> characterCards = new List<CharacterCard>();
-    public List<CharacterCard> discardDeck = new List<CharacterCard>();
 
     private void FixedUpdate()
     {

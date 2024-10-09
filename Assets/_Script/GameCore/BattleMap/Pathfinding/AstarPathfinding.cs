@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using _Script.Characters.CharactersCards.Enum;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -8,7 +9,7 @@ public static class AstarPathfinding
 {
     public static Dictionary<Vector3Int, GameObject> TilesetMap;
     public static HexGrid HexGrid;
-    private static float[] terrainModifiers = { 1, 2, 3, 3, 99999999 };
+    public static float[] terrainModifiers = { 1, 2, 3, 3, 99999999 };
 
 
     public static int GetDistance(Vector3Int positionA, Vector3Int positionB)
@@ -17,7 +18,7 @@ public static class AstarPathfinding
         return (int)((MathF.Abs(distance.x) + MathF.Abs(distance.y) + MathF.Abs(distance.z)) / 2);
     }
 
-    public static List<Hexagon> FindPath(Hexagon startPosition, Hexagon endPosition)
+    public static List<Hexagon> FindPath(Hexagon startPosition, Hexagon endPosition, CharacterActionType actionType)
     {
         List<Hexagon> openSet = new List<Hexagon>();
         List<Hexagon> closedSet = new List<Hexagon>();

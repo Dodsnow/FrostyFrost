@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using _Script.Characters.CharactersCards.Enum;
 using _Script.ConditionalEffects.Enum;
 using UnityEngine;
 [Serializable]
@@ -23,9 +24,9 @@ public class CardAction
 
    
 
-    public void AddActionSequence(CharacterActionType characterActionType, int actionRange, int actionValue,string animProp, List<ApplicableConditions> applicableConditionsList)
+    public void AddActionSequence(CharacterActionType characterActionType, int actionRange, int numberOfTargets, int actionValue, string animProp, List<ApplicableConditions> applicableConditionsList)
     {
-        CardActionSequence cardActionSequence = new CardActionSequence(characterActionType, actionRange, actionValue, animProp);
+        CardActionSequence cardActionSequence = new CardActionSequence(characterActionType, actionRange, numberOfTargets ,actionValue, animProp);
         cardActionSequencesList.Add(cardActionSequence);
         if (applicableConditionsList != null)
         {

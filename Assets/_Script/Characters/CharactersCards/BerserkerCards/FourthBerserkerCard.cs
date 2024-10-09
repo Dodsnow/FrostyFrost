@@ -1,6 +1,7 @@
 
     using System;
     using System.Collections.Generic;
+    using _Script.Characters.CharactersCards.Enum;
     using _Script.ConditionalEffects;
     using _Script.ConditionalEffects.Enum;
     using UnityEngine;
@@ -20,11 +21,11 @@
             cardName = "Fourth Berserker Card";
             initiative = 86;
             TopCardAction = new CardAction(CardDiscardActionType.Discard,"Attack 3, Attack 1", this);
-            TopCardAction.AddActionSequence(CharacterActionType.Attack,1,3, "AttackSlice",new List<ApplicableConditions>(){ApplicableConditions.Bleed});
-            TopCardAction.AddActionSequence(CharacterActionType.Attack,1,1,"AttackStab",null);
+            TopCardAction.AddActionSequence(CharacterActionType.Attack,1,1,3, "AttackSlice",new List<ApplicableConditions>(){ApplicableConditions.Bleed});
+            TopCardAction.AddActionSequence(CharacterActionType.Attack,1,1,1,"AttackStab",null);
             BottomCardAction = new CardAction(CardDiscardActionType.Lost,"Move 1, Move 10", this);
-            BottomCardAction.AddActionSequence(CharacterActionType.Move,1,0, "",null);
-            BottomCardAction.AddActionSequence(CharacterActionType.Move,10,0, "",null);
+            BottomCardAction.AddActionSequence(CharacterActionType.Move,1,0,0, "",null);
+            BottomCardAction.AddActionSequence(CharacterActionType.Move,10,0,0, "",null);
             
 
         }

@@ -1,6 +1,7 @@
 
     using System;
     using System.Collections.Generic;
+    using _Script.Characters.CharactersCards.Enum;
     using _Script.ConditionalEffects.Enum;
     using UnityEngine;
     using UnityEngine.UI;
@@ -19,9 +20,9 @@
             cardName = "Second Skeleton Card";
             initiative = 14;
             TopCardAction = new CardAction(CardDiscardActionType.Shuffle, "Move 4, Attack 1, Attack 1", this);
-            TopCardAction.AddActionSequence(CharacterActionType.Move,4,0,"",null);
-            TopCardAction.AddActionSequence(CharacterActionType.Attack,1,1,"AttackChop",null);
-            TopCardAction.AddActionSequence(CharacterActionType.Attack,1,1,"AttackSlice", new List<ApplicableConditions>()
+            TopCardAction.AddActionSequence(CharacterActionType.Move,4,0,0,"",null);
+            TopCardAction.AddActionSequence(CharacterActionType.Attack,1,1,1,"AttackJumpChop",null);
+            TopCardAction.AddActionSequence(CharacterActionType.Attack,1,1,1,"AttackSlice", new List<ApplicableConditions>()
                 {
                     ApplicableConditions.Weaken
                 });
